@@ -1,1 +1,1 @@
-worker: python marktplaats_scraper_appletv.py
+worker: python app.py

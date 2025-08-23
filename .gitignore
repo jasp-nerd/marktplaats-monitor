@@ -133,7 +133,23 @@ dmypy.json
 # Runtime data and logs
 *.log
 tv_monitor.log
+appletv_monitor.log
+
+# Monitor state files (contain tracked listing IDs)
 seen_tv_listings.json
+seen_appletv_listings.json
+
+# Configuration and secrets
+.env
+config.ini
+secrets.json
+
+# Heroku local development
+.env.local
+.env.development
+
+# Archive directory (old/deprecated files)
+archive/
 
 # IDE files
 .vscode/

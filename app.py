@@ -26,7 +26,7 @@ try:
 except ImportError:
     logging.warning("python-dotenv not installed. Using system environment variables only.")
 
-from marktplaats_tv_scraper import MarktplaatsTVScraper, TVListing
+from scraper_core import MarktplaatsTVScraper, TVListing
 
 # AI imports removed - simplifying to basic scraping only
 
