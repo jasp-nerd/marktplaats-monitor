@@ -192,7 +192,11 @@ class AppleTVMonitor:
                 clean_title = re.sub(r'€\s*[0-9.,]+details.*$', '', clean_title)
                 clean_title = re.sub(r'details.*$', '', clean_title, flags=re.IGNORECASE)
                 clean_title = re.sub(r'\s+', ' ', clean_title).strip()[:80]
-                logger.info(f"🆕 NEW APPLE TV: {clean_title} | {listing.price} | {listing.location}")
+                # Determine if this is actually an Apple TV device for logging
+                temp_listing = listing
+                is_apple_tv_device = self._is_actual_apple_tv_device(temp_listing)
+                listing_type = "🍎 APPLE TV DEVICE" if is_apple_tv_device else "📺 REGULAR TV"
+                logger.info(f"🆕 NEW LISTING ({listing_type}): {clean_title} | {listing.price} | {listing.location}")
         
         if new_listings:
             self._save_seen_listings()
@@ -207,13 +211,71 @@ class AppleTVMonitor:
     
 
     
+    def _is_actual_apple_tv_device(self, listing: TVListing) -> bool:
+        """Intelligently detect if a listing is actually for an Apple TV 4K device (not a regular TV)."""
+        title_lower = listing.title.lower()
+        description_lower = listing.description.lower() if listing.description else ""
+        combined_text = f"{title_lower} {description_lower}"
+        
+        # Strong indicators this is an Apple TV device
+        apple_tv_indicators = [
+            "apple tv 4k",
+            "apple tv 4k 64gb",
+            "apple tv 4k 32gb", 
+            "apple tv 4k 128gb",
+            "appletv 4k",
+            "apple tv (4k)",
+            "apple tv model",
+            "siri remote",
+            "apple tv afstandsbediening",
+            "tvos",
+            "apple streaming"
+        ]
+        
+        # Strong indicators this is a regular TV (not Apple TV device)
+        tv_brand_indicators = [
+            "samsung", "lg ", "sony", "philips", "tcl", "hisense",
+            "panasonic", "sharp", "toshiba", "grundig", "loewe",
+            "bang & olufsen", "b&o", "xiaomi", "thomson", "jvc",
+            "inch", "led", "oled", "qled", "lcd", "smart tv",
+            "4k tv", "uhd tv", "televisie", "fernseher"
+        ]
+        
+        # Check for Apple TV indicators
+        apple_tv_score = 0
+        for indicator in apple_tv_indicators:
+            if indicator in combined_text:
+                apple_tv_score += 1
+                logger.debug(f"✅ Apple TV indicator found: '{indicator}'")
+        
+        # Check for regular TV indicators  
+        tv_brand_score = 0
+        for indicator in tv_brand_indicators:
+            if indicator in combined_text:
+                tv_brand_score += 1
+                logger.debug(f"❌ Regular TV indicator found: '{indicator}'")
+        
+        # Decision logic
+        is_apple_tv = apple_tv_score > 0 and tv_brand_score == 0
+        
+        logger.info(f"🔍 Apple TV Detection - Title: '{listing.title[:50]}...' | Apple TV Score: {apple_tv_score} | TV Brand Score: {tv_brand_score} | Result: {'✅ Apple TV Device' if is_apple_tv else '❌ Regular TV'}")
+        
+        return is_apple_tv
+    
     def _format_listing_for_discord(self, listing: TVListing) -> Dict:
         """Format a listing for Discord webhook."""
         logger.debug(f"📨 Formatting Discord embed for listing: {listing.title}")
         
-        # Create a rich embed for the listing
-        color = 0x1e90ff  # Apple blue color
-        title_prefix = "🍎 NEW APPLE TV 4K"
+        # Detect if this is actually an Apple TV device
+        is_apple_tv = self._is_actual_apple_tv_device(listing)
+        
+        # Create different formatting based on detection
+        if is_apple_tv:
+            color = 0x1e90ff  # Apple blue color
+            title_prefix = "🍎 NEW APPLE TV 4K"
+        else:
+            color = 0x808080  # Gray color for regular TVs
+            title_prefix = "📺 TV Listing (Not Apple TV)"
         
         # Discord embed limits:
         # - Title: 256 characters
@@ -331,17 +393,31 @@ class AppleTVMonitor:
             "embeds": [embed]
         }
         
-        # No special pinging for Apple TV listings - keep it simple
+        # Add @everyone ping only for actual Apple TV devices
+        if is_apple_tv:
+            payload["content"] = "@everyone 🚨 **APPLE TV 4K FOUND!** 🚨"
+            logger.info("🔔 Adding @everyone ping for Apple TV 4K device!")
         
         return payload
     
     def _send_discord_notification(self, new_listings: List[TVListing]):
-        """Send Discord notification for new Apple TV listings."""
-        logger.info(f"📨 Starting Discord notifications for {len(new_listings)} new Apple TV listings")
+        """Send Discord notification for new listings (Apple TV devices and regular TVs)."""
+        # Count actual Apple TV devices vs regular TVs
+        apple_tv_count = sum(1 for listing in new_listings if self._is_actual_apple_tv_device(listing))
+        regular_tv_count = len(new_listings) - apple_tv_count
+        
+        logger.info(f"📨 Starting Discord notifications for {len(new_listings)} new listings:")
+        logger.info(f"    🍎 Apple TV devices: {apple_tv_count}")
+        logger.info(f"    📺 Regular TVs: {regular_tv_count}")
+        
+        if apple_tv_count > 0:
+            logger.info("🔔 @everyone pings will be sent for Apple TV devices!")
         
         try:
             for i, listing in enumerate(new_listings, 1):
-                logger.info(f"📨 Processing Apple TV listing {i}/{len(new_listings)}: {listing.title}")
+                is_apple_tv = self._is_actual_apple_tv_device(listing)
+                listing_type = "🍎 Apple TV" if is_apple_tv else "📺 Regular TV"
+                logger.info(f"📨 Processing {listing_type} listing {i}/{len(new_listings)}: {listing.title}")
                 
                 # Format notification (simplified without AI analysis)
                 logger.debug(f"📨 Formatting Discord payload for: {listing.title}")
@@ -374,7 +450,8 @@ class AppleTVMonitor:
                     logger.debug(f"📨 Discord response status: {response.status_code}")
                     
                     if response.status_code == 204:
-                        logger.info(f"✅ Discord notification sent for Apple TV: {listing.title}")
+                        ping_status = "(@everyone ping sent)" if is_apple_tv else "(no ping)"
+                        logger.info(f"✅ Discord notification sent for {listing_type}: {listing.title} {ping_status}")
                     elif response.status_code == 429:
                         logger.error(f"❌ Discord rate limited: {response.status_code}")
                         logger.debug(f"Rate limit headers: {dict(response.headers)}")

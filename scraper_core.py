@@ -45,11 +45,15 @@ class TVListing:
     
     def _extract_brand(self) -> str:
         """Extract TV brand from title."""
-        # Import here to avoid circular import (TV_BRANDS is on MarktplaatsTVScraper)
-        from marktplaats_tv_scraper import MarktplaatsTVScraper
+        # Use TV brands directly to avoid circular import
+        TV_BRANDS = [
+            'Samsung', 'LG', 'Sony', 'Philips', 'TCL', 'Hisense', 
+            'Panasonic', 'Sharp', 'Toshiba', 'JVC', 'Grundig',
+            'Bang & Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei'
+        ]
         
         title_upper = self.title.upper()
-        for brand in MarktplaatsTVScraper.TV_BRANDS:
+        for brand in TV_BRANDS:
             if brand.upper() in title_upper:
                 return brand
         return "Unknown"
