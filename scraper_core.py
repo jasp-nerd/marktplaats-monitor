@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Marktplaats TV Scraper - Core scraping functionality for TV listings
+Marktplaats Item Scraper - Core scraping functionality for any item listings
 """
 
 import requests
@@ -16,8 +16,8 @@ import time
 logger = logging.getLogger(__name__)
 
 @dataclass
-class TVListing:
-    """Data class representing a TV listing from Marktplaats."""
+class ItemListing:
+    """Data class representing an item listing from Marktplaats."""
     title: str
     price: str
     price_numeric: float
@@ -26,8 +26,8 @@ class TVListing:
     posting_date: str
     description: str
     listing_url: str
+    category: str = "Unknown"
     brand: str = "Unknown"
-    screen_size: str = "Unknown"
     features: List[str] = None
     condition: str = "Unknown"
     image_url: str = ""
@@ -36,58 +36,44 @@ class TVListing:
         if self.features is None:
             self.features = []
         
-        # Extract brand and screen size from title if possible
+        # Extract brand from title if possible
         if self.brand == "Unknown":
             self.brand = self._extract_brand()
-        
-        if self.screen_size == "Unknown":
-            self.screen_size = self._extract_screen_size()
     
     def _extract_brand(self) -> str:
-        """Extract TV brand from title."""
-        # Use TV brands directly to avoid circular import
-        TV_BRANDS = [
+        """Extract brand from title based on common brand names."""
+        # Common brands that might appear in various categories
+        COMMON_BRANDS = [
             'Samsung', 'LG', 'Sony', 'Philips', 'TCL', 'Hisense', 
             'Panasonic', 'Sharp', 'Toshiba', 'JVC', 'Grundig',
-            'Bang & Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei'
+            'Bang & Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei',
+            'Apple', 'Google', 'Amazon', 'Microsoft', 'Nintendo',
+            'Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'MSI',
+            'Nike', 'Adidas', 'Puma', 'Under Armour', 'New Balance',
+            'BMW', 'Mercedes', 'Audi', 'Volkswagen', 'Toyota',
+            'IKEA', 'Zara', 'H&M', 'Uniqlo', 'Levi\'s'
         ]
         
         title_upper = self.title.upper()
-        for brand in TV_BRANDS:
+        for brand in COMMON_BRANDS:
             if brand.upper() in title_upper:
                 return brand
         return "Unknown"
-    
-    def _extract_screen_size(self) -> str:
-        """Extract screen size from title."""
-        # Look for patterns like 55", 65 inch, 75"
-        size_patterns = [
-            r'(\d{2,3})\s*["\']',  # 55", 65'
-            r'(\d{2,3})\s*inch',   # 55 inch
-            r'(\d{2,3})\s*cm',     # 140cm
-        ]
-        
-        for pattern in size_patterns:
-            match = re.search(pattern, self.title, re.IGNORECASE)
-            if match:
-                size = int(match.group(1))
-                if 20 <= size <= 100:  # Reasonable TV size range in inches
-                    return f'{size}"'
-                elif 50 <= size <= 250:  # CM range
-                    inches = round(size / 2.54)
-                    return f'{inches}"'
-        
-        return "Unknown"
 
 
-class MarktplaatsTVScraper:
-    """Scraper for Marktplaats TV listings."""
+class MarktplaatsItemScraper:
+    """Scraper for Marktplaats item listings."""
     
-    # Known TV brands for extraction from titles
-    TV_BRANDS = [
+    # Known brands for extraction from titles (expanded for general use)
+    COMMON_BRANDS = [
         'Samsung', 'LG', 'Sony', 'Philips', 'TCL', 'Hisense', 
         'Panasonic', 'Sharp', 'Toshiba', 'JVC', 'Grundig',
-        'Bang & Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei'
+        'Bang & Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei',
+        'Apple', 'Google', 'Amazon', 'Microsoft', 'Nintendo',
+        'Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'MSI',
+        'Nike', 'Adidas', 'Puma', 'Under Armour', 'New Balance',
+        'BMW', 'Mercedes', 'Audi', 'Volkswagen', 'Toyota',
+        'IKEA', 'Zara', 'H&M', 'Uniqlo', 'Levi\'s'
     ]
     
     def __init__(self):
@@ -105,7 +91,7 @@ class MarktplaatsTVScraper:
             'Upgrade-Insecure-Requests': '1',
         })
         
-        logger.debug("MarktplaatsTVScraper initialized")
+        logger.debug("MarktplaatsItemScraper initialized")
     
     def _parse_dutch_price(self, price_text: str) -> float:
         """Parse Dutch-formatted price strings to float."""
@@ -134,14 +120,14 @@ class MarktplaatsTVScraper:
         except (ValueError, AttributeError):
             return 0.0
     
-    def scrape_tv_listings(self, max_pages: int = 3) -> List[TVListing]:
-        """Scrape TV listings from Marktplaats."""
+    def scrape_listings(self, search_url: str, max_pages: int = 3) -> List[ItemListing]:
+        """Scrape item listings from Marktplaats for any search URL."""
         all_listings = []
         
         for page in range(1, max_pages + 1):
             logger.info(f"Scraping page {page}/{max_pages}")
             
-            page_listings = self._scrape_page(page)
+            page_listings = self._scrape_page(search_url, page)
             all_listings.extend(page_listings)
             
             if len(page_listings) == 0:
@@ -154,12 +140,17 @@ class MarktplaatsTVScraper:
         logger.info(f"Total listings scraped: {len(all_listings)}")
         return all_listings
     
-    def _scrape_page(self, page: int = 1) -> List[TVListing]:
-        """Scrape a single page of TV listings."""
+    def _scrape_page(self, search_url: str, page: int = 1) -> List[ItemListing]:
+        """Scrape a single page of item listings from a search URL."""
         try:
-            url = f"{self.base_url}/l/audio-tv-en-foto/televisies"
+            # Handle pagination for the provided search URL
             if page > 1:
-                url += f"?offset={(page - 1) * 30}"
+                if '?' in search_url:
+                    url = f"{search_url}&offset={(page - 1) * 30}"
+                else:
+                    url = f"{search_url}?offset={(page - 1) * 30}"
+            else:
+                url = search_url
             
             logger.debug(f"Fetching: {url}")
             
@@ -181,7 +172,7 @@ class MarktplaatsTVScraper:
                 ('div', {'class': 'listing-item'}),
                 ('li', {'class': 'listing'}),
                 ('div', {'data-item-id': True}),  # Items with data attributes
-                ('a', {'href': re.compile(r'/v/audio-tv-en-foto/televisies/m\d+')}),  # Direct links to TV listings
+                ('a', {'href': re.compile(r'/v/.*/m\d+')}),  # Direct links to any listings
             ]
             
             for tag, attrs in listing_patterns:
@@ -197,44 +188,44 @@ class MarktplaatsTVScraper:
             
             # If still no elements found, try a broader search
             if not listing_elements:
-                # Look for any elements containing TV listing URLs
-                all_links = soup.find_all('a', href=re.compile(r'/v/.*/televisies/'))
+                # Look for any elements containing listing URLs
+                all_links = soup.find_all('a', href=re.compile(r'/v/.*/m\d+'))
                 if all_links:
                     # Get parent containers that might be listing elements
                     for link in all_links:
                         parent = link.find_parent(['li', 'div', 'article'])
                         if parent and parent not in listing_elements:
                             listing_elements.append(parent)
-                    logger.debug(f"📺 Found {len(listing_elements)} elements by link analysis")
+                    logger.debug(f"🔍 Found {len(listing_elements)} elements by link analysis")
             
-            logger.info(f"📺 Found {len(listing_elements)} listing elements on page {page}")
+            logger.info(f"🔍 Found {len(listing_elements)} listing elements on page {page}")
             
             if not listing_elements:
-                logger.warning(f"📺 No listing elements found on page {page}")
-                logger.debug(f"📺 Page HTML structure preview: {str(soup)[:500]}...")
+                logger.warning(f"🔍 No listing elements found on page {page}")
+                logger.debug(f"🔍 Page HTML structure preview: {str(soup)[:500]}...")
             
             listings = []
             for i, element in enumerate(listing_elements, 1):
-                logger.debug(f"📺 Processing element {i}/{len(listing_elements)}")
+                logger.debug(f"🔍 Processing element {i}/{len(listing_elements)}")
                 try:
                     listing = self._extract_listing_data(element, soup)
                     if listing:
                         listings.append(listing)
-                        logger.debug(f"📺 Successfully extracted listing {i}: {listing.title}")
+                        logger.debug(f"🔍 Successfully extracted listing {i}: {listing.title}")
                     else:
-                        logger.debug(f"📺 Failed to extract listing {i}")
+                        logger.debug(f"🔍 Failed to extract listing {i}")
                 except Exception as e:
-                    logger.warning(f"📺 Error processing element {i}: {e}")
+                    logger.warning(f"🔍 Error processing element {i}: {e}")
                     continue
             
-            logger.info(f"📺 Successfully extracted {len(listings)} listings from {len(listing_elements)} elements")
+            logger.info(f"🔍 Successfully extracted {len(listings)} listings from {len(listing_elements)} elements")
             return listings
             
         except Exception as e:
             logger.error(f"Error scraping page {page}: {e}")
             return []
     
-    def _extract_listing_data(self, element, soup, silent_mode: bool = False) -> Optional[TVListing]:
+    def _extract_listing_data(self, element, soup, silent_mode: bool = False) -> Optional[ItemListing]:
         """Extract data from a single listing element."""
         try:
             # Extract title - More robust approach for various Marktplaats structures
@@ -248,7 +239,7 @@ class MarktplaatsTVScraper:
                 ('h2', {'class': 'hz-Listing-title'}),
                 ('a', {'class': 'hz-Link'}),
                 ('a', {'class': 'mp-listing-link'}),
-                ('a', {'href': re.compile(r'/v/.*/televisies/')}),  # Any TV listing link
+                ('a', {'href': re.compile(r'/v/.*/m\d+')}),  # Any listing link
             ]
             
             for tag, attrs in title_patterns:
@@ -260,7 +251,7 @@ class MarktplaatsTVScraper:
             
             # If still no title found, try a broader search within the element
             if not title:
-                # Look for any text that looks like a TV title (contains common TV keywords)
+                # Look for any text that looks like a title
                 all_text = element.get_text(separator=' ', strip=True)
                 
                 # Split by common delimiters and look for the main title part
@@ -281,7 +272,7 @@ class MarktplaatsTVScraper:
             if not title:
                 return None
             
-            logger.debug(f"📺 Extracting listing: {title[:50]}...")
+            logger.debug(f"🔍 Extracting listing: {title[:50]}...")
             
             # Extract URL - More robust approach for various link structures
             listing_url = ""
@@ -290,7 +281,7 @@ class MarktplaatsTVScraper:
             link_patterns = [
                 ('a', {'class': 'hz-Link'}),  # Most common working pattern
                 ('a', {'class': 'hz-Listing-coverLink'}),  # Cover link
-                ('a', {'href': re.compile(r'/v/.*/televisies/')}),  # TV listing links
+                ('a', {'href': re.compile(r'/v/.*/m\d+')}),  # Listing links
                 ('a', {'class': 'mp-listing-link'}),
                 ('a', {'class': re.compile(r'.*[Ll]ink.*')}),  # Any class containing "link"
             ]
@@ -303,15 +294,10 @@ class MarktplaatsTVScraper:
             
             # If no specific link found, try broader searches
             if not listing_url:
-                # Try any link with TV-related href
-                tv_link = element.find('a', href=re.compile(r'(televisies|tv)'))
-                if tv_link and tv_link.get('href'):
-                    listing_url = tv_link.get('href')
-                else:
-                    # Try any link in the element as last resort
-                    any_link = element.find('a', href=True)
-                    if any_link:
-                        listing_url = any_link.get('href', '')
+                # Try any link in the element as last resort
+                any_link = element.find('a', href=True)
+                if any_link:
+                    listing_url = any_link.get('href', '')
             
             # For listings without direct links, try to construct URL from title/content
             if not listing_url and title:
@@ -323,17 +309,17 @@ class MarktplaatsTVScraper:
                 if is_business:
                     # For business listings without direct links, note this in the URL
                     listing_url = "# Business listing - check original search page"
-                    logger.debug(f"📺 Business listing detected without direct link: {title[:30]}...")
+                    logger.debug(f"🔍 Business listing detected without direct link: {title[:30]}...")
                 else:
                     # For user listings without links, this might be an ad or external listing
                     listing_url = "# External listing - no direct link available"
-                    logger.debug(f"📺 User listing without direct link: {title[:30]}...")
+                    logger.debug(f"🔍 User listing without direct link: {title[:30]}...")
             
             # Make URL absolute if needed (skip constructed placeholder URLs)
             if listing_url and not listing_url.startswith('#') and not listing_url.startswith('http'):
                 listing_url = urljoin(self.base_url, listing_url)
             
-            logger.debug(f"📺 Found URL: {listing_url}")
+            logger.debug(f"🔍 Found URL: {listing_url}")
             
             # Extract price - More robust price extraction
             price = "Prijs onbekend"
@@ -357,7 +343,7 @@ class MarktplaatsTVScraper:
                     price = price_text
                     price_numeric = self._parse_dutch_price(price_text)
                     price_found = True
-                    logger.debug(f"📺 Found price in text: {price}")
+                    logger.debug(f"🔍 Found price in text: {price}")
                     break
             
             # If no price found in text, try HTML elements
@@ -375,7 +361,7 @@ class MarktplaatsTVScraper:
                         price_text = price_elem.get_text(strip=True)
                         price = price_text
                         price_numeric = self._parse_dutch_price(price_text)
-                        logger.debug(f"📺 Found price in element: {price}")
+                        logger.debug(f"🔍 Found price in element: {price}")
                         break
             
             # Check for special cases (bidding, reserved, etc.)
@@ -385,7 +371,7 @@ class MarktplaatsTVScraper:
                         price = "Bieden"
                     else:
                         price = "Gereserveerd"
-                    logger.debug(f"📺 Special pricing: {price}")
+                    logger.debug(f"🔍 Special pricing: {price}")
             
             # Extract location - More robust location extraction from text
             location = "Locatie onbekend"
@@ -406,15 +392,16 @@ class MarktplaatsTVScraper:
                 location_match = re.search(pattern, all_text)
                 if location_match:
                     potential_location = location_match.group(1) if location_match.lastindex else location_match.group(0)
-                    # Filter out obvious non-location words including TV brands
+                    # Filter out obvious non-location words including brands and categories
                     excluded_words = [
                         # Categories and actions
                         'Audio', 'Televisies', 'Ophalen', 'Verzenden', 'Gebruikt', 'Nieuw', 'Details', 'Vandaag', 'Gisteren',
-                        # TV technologies
+                        # Technology terms
                         'OLED', 'QLED', 'LED', 'Smart', 'Ultra', 'HD', 'UHD', 'HDR', 'Ambilight', 'Crystal', 'Frame',
-                        # TV brands (from TV_BRANDS list)
+                        # Common brands
                         'Samsung', 'LG', 'Sony', 'Philips', 'TCL', 'Hisense', 'Panasonic', 'Sharp', 'Toshiba', 'JVC', 'Grundig',
-                        'Bang', 'Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei',
+                        'Bang', 'Olufsen', 'Loewe', 'Xiaomi', 'OnePlus', 'Huawei', 'Apple', 'Google', 'Amazon', 'Microsoft',
+                        'Nintendo', 'Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'MSI', 'Nike', 'Adidas', 'Puma',
                         # Business names
                         'HelloTV', 'Hellotv', 'MediaMarkt', 'Coolblue', 'Bol'
                     ]
@@ -422,7 +409,7 @@ class MarktplaatsTVScraper:
                     if potential_location.lower() not in [word.lower() for word in excluded_words] and len(potential_location) > 2:
                         location = potential_location
                         location_found = True
-                        logger.debug(f"📺 Found location in text: {location}")
+                        logger.debug(f"🔍 Found location in text: {location}")
                         break
             
             # If no location found in text, try HTML elements
@@ -441,7 +428,7 @@ class MarktplaatsTVScraper:
                         # Apply same brand filtering to HTML-extracted locations
                         if potential_location.lower() not in [word.lower() for word in excluded_words] and len(potential_location) > 2:
                             location = potential_location
-                            logger.debug(f"📺 Found location in element: {location}")
+                            logger.debug(f"🔍 Found location in element: {location}")
                             break
             
             # Extract seller name - Accept that it's not available in search results
@@ -450,7 +437,7 @@ class MarktplaatsTVScraper:
             seller_name = "Zie advertentie"  # More user-friendly message
             
             # Log that this is expected behavior
-            logger.debug(f"📺 Seller info not available in search results (expected)")
+            logger.debug(f"🔍 Seller info not available in search results (expected)")
             
             # Extract posting date - More robust date extraction from text
             posting_date = "Datum onbekend"
@@ -472,7 +459,7 @@ class MarktplaatsTVScraper:
                 if date_match:
                     posting_date = date_match.group(0)
                     date_found = True
-                    logger.debug(f"📺 Found date in text: {posting_date}")
+                    logger.debug(f"🔍 Found date in text: {posting_date}")
                     break
             
             # If no date found in text, try HTML elements
@@ -488,18 +475,18 @@ class MarktplaatsTVScraper:
                     date_elem = element.find('span', pattern) or element.find('div', pattern) or element.find('time', pattern)
                     if date_elem:
                         posting_date = date_elem.get_text(strip=True)
-                        logger.debug(f"📺 Found date in element: {posting_date}")
+                        logger.debug(f"🔍 Found date in element: {posting_date}")
                         break
             
             # Extract description - Get from listing element and optionally listing page
             description = self._extract_description(element, listing_url)
-            logger.debug(f"📺 Extracted description: {description[:100]}...")
+            logger.debug(f"🔍 Extracted description: {description[:100]}...")
             
             # Extract image URL
             img_elem = element.find('img')
             image_url = img_elem.get('src', '') if img_elem else ''
             
-            listing = TVListing(
+            listing = ItemListing(
                 title=title,
                 price=price,
                 price_numeric=price_numeric,
@@ -519,7 +506,7 @@ class MarktplaatsTVScraper:
             clean_title = re.sub(r'\s+', ' ', clean_title).strip()[:100]
             
             if not silent_mode:
-                logger.info(f"📺 Successfully extracted: {clean_title} | {price} | {location} | {posting_date}")
+                logger.info(f"🔍 Successfully extracted: {clean_title} | {price} | {location} | {posting_date}")
             return listing
             
         except Exception as e:
@@ -546,7 +533,7 @@ class MarktplaatsTVScraper:
                 if desc_elem:
                     description = desc_elem.get_text(strip=True)
                     if description and len(description) > 10:
-                        logger.debug(f"📺 Found description in element: {description[:50]}...")
+                        logger.debug(f"🔍 Found description in element: {description[:50]}...")
                         return description[:500]  # Limit length
             
             # Pattern 2: Try to extract from structured text (more selective approach)
@@ -561,10 +548,9 @@ class MarktplaatsTVScraper:
                     r'(vandaag|gisteren|\d+\s*(jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec))',  # Date
                     r'(Bieden|Kopen|Ophalen|Verzenden|details|Topadvertentie|Dagtopper)',  # Action buttons & labels
                     r'(Gebruikt|Nieuw|Zo\s+goed\s+als\s+nieuw|Refurbished)',  # Conditions
-                    r'\b(Samsung|LG|Sony|Philips|TCL|Hisense|Panasonic|Sharp|Toshiba)\b',  # Brand names
-                    r'\b\d+\s*(inch|cm|Hz)\b',  # Technical specs
-                    r'\b(TV|televisie|Smart\s*TV|OLED|QLED|LCD|LED|Ultra\s*HD|4K|Full\s*HD)\b',  # TV terms
-                    r'\b(100\s*cm\s*of\s*meer|80\s*tot\s*100\s*cm)\b',  # Size categories
+                    r'\b(Samsung|LG|Sony|Philips|TCL|Hisense|Panasonic|Sharp|Toshiba|Apple|Google|Amazon|Microsoft|Nintendo|Dell|HP|Lenovo|Asus|Acer|MSI|Nike|Adidas|Puma)\b',  # Brand names
+                    r'\b\d+\s*(inch|cm|Hz|GB|MB|TB)\b',  # Technical specs
+                    r'\b(TV|televisie|Smart\s*TV|OLED|QLED|LCD|LED|Ultra\s*HD|4K|Full\s*HD|iPhone|iPad|MacBook|PlayStation|Xbox)\b',  # Tech terms
                     r'\bOok\s+voor\s+de\s+tweedehands\b',  # Common ad text
                 ]
                 
@@ -590,8 +576,8 @@ class MarktplaatsTVScraper:
                         # Check if it contains descriptive words rather than just metadata
                         descriptive_patterns = [
                             r'\b(beschrijving|combineer|perfect|uitstekend|fantastisch|mooi|goed|kwaliteit)\b',
-                            r'\b(televisie|tv|scherm|beeld|kijk|entertainment)\b',
-                            r'\b(staat|conditie|werkt|functioneert)\b'
+                            r'\b(scherm|beeld|kijk|entertainment|product|artikel|item)\b',
+                            r'\b(staat|conditie|werkt|functioneert|gebruikt|nieuw)\b'
                         ]
                         
                         has_descriptive_content = any(re.search(pattern, clean_sentence, re.IGNORECASE) for pattern in descriptive_patterns)
@@ -602,7 +588,7 @@ class MarktplaatsTVScraper:
                 # Use the best description candidate
                 if description_candidates:
                     best_description = max(description_candidates, key=len)
-                    logger.debug(f"📺 Extracted description from text: {best_description[:50]}...")
+                    logger.debug(f"🔍 Extracted description from text: {best_description[:50]}...")
                     return best_description[:300]  # Shorter limit for cleaner output
             
             # Pattern 3: Fallback to basic information
@@ -611,7 +597,7 @@ class MarktplaatsTVScraper:
             return "Zie advertentie voor volledige beschrijving"
             
         except Exception as e:
-            logger.debug(f"📺 Error extracting description: {e}")
+            logger.debug(f"🔍 Error extracting description: {e}")
             return "Geen beschrijving beschikbaar"
     
     def get_listing_details(self, listing_url: str) -> Dict[str, Any]:
@@ -675,4 +661,4 @@ class MarktplaatsTVScraper:
     def close(self):
         """Close the session."""
         self.session.close()
-        logger.info("MarktplaatsTVScraper session closed")
+        logger.info("MarktplaatsItemScraper session closed")

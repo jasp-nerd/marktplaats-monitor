@@ -138,6 +138,7 @@ appletv_monitor.log
 # Monitor state files (contain tracked listing IDs)
 seen_tv_listings.json
 seen_appletv_listings.json
+seen_items_listings.json
 
 # Configuration and secrets
 .env

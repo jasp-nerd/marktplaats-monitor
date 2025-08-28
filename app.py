@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Marktplaats TV Monitor - Real-time new listing alerts via Discord
+Marktplaats Item Monitor - Real-time new listing alerts via Discord for any item search
 Updated with correct Gemini API implementation (2025)
 """
 
@@ -26,7 +26,7 @@ try:
 except ImportError:
     logging.warning("python-dotenv not installed. Using system environment variables only.")
 
-from scraper_core import MarktplaatsTVScraper, TVListing
+from scraper_core import MarktplaatsItemScraper, ItemListing
 
 # AI imports removed - simplifying to basic scraping only
 
@@ -35,33 +35,34 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('appletv_monitor.log'),
+        logging.FileHandler('marktplaats_monitor.log'),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-class AppleTVMonitor:
-    """Monitors Marktplaats for new Apple TV 4K listings and sends Discord alerts."""
+class MarktplaatsItemMonitor:
+    """Monitors Marktplaats for new item listings and sends Discord alerts."""
     
-    def __init__(self, discord_webhook_url: str):
+    def __init__(self, discord_webhook_url: str, search_url: str, item_name: str = "items"):
         self.discord_webhook_url = discord_webhook_url
-        self.scraper = MarktplaatsTVScraper()
-        self.seen_listings_file = Path("seen_appletv_listings.json")
+        self.scraper = MarktplaatsItemScraper()
+        self.search_url = search_url
+        self.item_name = item_name
+        
+        # Create safe filename from search URL or item name
+        safe_name = re.sub(r'[^\w\-_]', '_', item_name.lower())
+        self.seen_listings_file = Path(f"seen_{safe_name}_listings.json")
         self.seen_listings: Set[str] = self._load_seen_listings()
         
-        # Target URL for Apple TV 4K listings
-        self.target_url = "https://www.marktplaats.nl/q/apple%2btv%2b4k/"
         self.sort_params = {
             'sortBy': 'SORT_INDEX',
             'sortOrder': 'DECREASING'
         }
         
-        # AI functionality removed for simplified Apple TV monitoring
-        
-        logger.info(f"🚨 Apple TV 4K Monitor initialized - 🎯 {self.target_url}")
+        logger.info(f"🚨 {item_name.title()} Monitor initialized - 🎯 {search_url}")
         logger.info(f"📡 Discord: {'✅ Connected' if discord_webhook_url else '❌ Not set'}")
-        logger.info(f"📊 Tracking {len(self.seen_listings)} known Apple TV listings")
+        logger.info(f"📊 Tracking {len(self.seen_listings)} known {item_name} listings")
     
     def _load_seen_listings(self) -> Set[str]:
         """Load previously seen listing IDs from file."""
@@ -87,18 +88,21 @@ class AppleTVMonitor:
         except Exception as e:
             logger.error(f"Failed to save seen listings: {e}")
     
-    def _create_listing_id(self, listing: TVListing) -> str:
+    def _create_listing_id(self, listing: ItemListing) -> str:
         """Create a unique ID for a listing based on key characteristics."""
         unique_string = f"{listing.title}|{listing.price}|{listing.location}"
         return hashlib.md5(unique_string.encode('utf-8')).hexdigest()[:12]
     
-    def _fetch_current_listings(self, silent_mode: bool = False, show_summary: bool = False) -> List[TVListing]:
-        """Fetch current listings from the target URL."""
+    def _fetch_current_listings(self, silent_mode: bool = False, show_summary: bool = False) -> List[ItemListing]:
+        """Fetch current listings from the search URL."""
         try:
             logger.debug("🔍 Fetching current listings...")
             
-            listings = []
-            url = f"{self.target_url}?{urlencode(self.sort_params)}"
+            # Construct URL with sort parameters
+            if '?' in self.search_url:
+                url = f"{self.search_url}&{urlencode(self.sort_params)}"
+            else:
+                url = f"{self.search_url}?{urlencode(self.sort_params)}"
             
             logger.debug(f"Scraping URL: {url}")
             
@@ -109,7 +113,7 @@ class AppleTVMonitor:
             
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # Find listing containers - Use comprehensive search like marktplaats_tv_scraper.py
+            # Find listing containers - Use comprehensive search
             listing_elements = []
             
             # Try various listing container patterns based on actual HTML
@@ -133,7 +137,7 @@ class AppleTVMonitor:
                     listing_elements = soup.find_all(tag, attrs)
                     
                 if listing_elements:
-                    logger.debug(f"📺 Found {len(listing_elements)} elements with pattern {tag} {attrs}")
+                    logger.debug(f"🔍 Found {len(listing_elements)} elements with pattern {tag} {attrs}")
                     break
             
             # If still no elements found, try a broader search
@@ -146,10 +150,11 @@ class AppleTVMonitor:
                         parent = link.find_parent(['li', 'div', 'article'])
                         if parent and parent not in listing_elements:
                             listing_elements.append(parent)
-                    logger.debug(f"🍎 Found {len(listing_elements)} elements by link analysis")
+                    logger.debug(f"🔍 Found {len(listing_elements)} elements by link analysis")
             
             logger.debug(f"Found {len(listing_elements)} listing elements total")
             
+            listings = []
             for element in listing_elements:
                 listing = self.scraper._extract_listing_data(element, soup, silent_mode=silent_mode)
                 if listing:
@@ -157,18 +162,18 @@ class AppleTVMonitor:
             
             # Only log fetch count if not in silent mode
             if not silent_mode:
-                logger.info(f"🍎 Fetched {len(listings)} current Apple TV listings")
+                logger.info(f"🔍 Fetched {len(listings)} current {self.item_name} listings")
             
             # Show summary of found listings if requested
             if show_summary and listings:
-                logger.info(f"🍎 Current Apple TV 4K listings found ({len(listings)} total):")
+                logger.info(f"🔍 Current {self.item_name} listings found ({len(listings)} total):")
                 for i, listing in enumerate(listings, 1):  # Show all listings
                     # Clean title for logging
                     clean_title = listing.title.replace('\n', ' ').replace('\r', ' ')
                     clean_title = re.sub(r'€\s*[0-9.,]+details.*$', '', clean_title)
                     clean_title = re.sub(r'details.*$', '', clean_title, flags=re.IGNORECASE)
                     clean_title = re.sub(r'\s+', ' ', clean_title).strip()[:60]
-                    logger.info(f"🍎   {i:2d}. {clean_title} | {listing.price} | {listing.location}")
+                    logger.info(f"🔍   {i:2d}. {clean_title} | {listing.price} | {listing.location}")
                 
             return listings
             
@@ -176,7 +181,7 @@ class AppleTVMonitor:
             logger.error(f"Error fetching listings: {e}")
             return []
     
-    def _check_for_new_listings(self, show_current_listings: bool = False) -> List[TVListing]:
+    def _check_for_new_listings(self, show_current_listings: bool = False) -> List[ItemListing]:
         """Check for new listings that haven't been seen before."""
         current_listings = self._fetch_current_listings(silent_mode=True, show_summary=show_current_listings)
         new_listings = []
@@ -192,90 +197,27 @@ class AppleTVMonitor:
                 clean_title = re.sub(r'€\s*[0-9.,]+details.*$', '', clean_title)
                 clean_title = re.sub(r'details.*$', '', clean_title, flags=re.IGNORECASE)
                 clean_title = re.sub(r'\s+', ' ', clean_title).strip()[:80]
-                # Determine if this is actually an Apple TV device for logging
-                temp_listing = listing
-                is_apple_tv_device = self._is_actual_apple_tv_device(temp_listing)
-                listing_type = "🍎 APPLE TV DEVICE" if is_apple_tv_device else "📺 REGULAR TV"
-                logger.info(f"🆕 NEW LISTING ({listing_type}): {clean_title} | {listing.price} | {listing.location}")
+                
+                logger.info(f"🆕 NEW LISTING: {clean_title} | {listing.price} | {listing.location}")
         
         if new_listings:
             self._save_seen_listings()
-            logger.info(f"✅ Found {len(new_listings)} new Apple TV listings")
+            logger.info(f"✅ Found {len(new_listings)} new {self.item_name} listings")
             logger.debug(f"💾 Updated seen listings file with {len(self.seen_listings)} total IDs")
         else:
-            logger.debug("No new Apple TV listings found")
+            logger.debug(f"No new {self.item_name} listings found")
         
         return new_listings
     
 
     
-
-    
-    def _is_actual_apple_tv_device(self, listing: TVListing) -> bool:
-        """Intelligently detect if a listing is actually for an Apple TV 4K device (not a regular TV)."""
-        title_lower = listing.title.lower()
-        description_lower = listing.description.lower() if listing.description else ""
-        combined_text = f"{title_lower} {description_lower}"
-        
-        # Strong indicators this is an Apple TV device
-        apple_tv_indicators = [
-            "apple tv 4k",
-            "apple tv 4k 64gb",
-            "apple tv 4k 32gb", 
-            "apple tv 4k 128gb",
-            "appletv 4k",
-            "apple tv (4k)",
-            "apple tv model",
-            "siri remote",
-            "apple tv afstandsbediening",
-            "tvos",
-            "apple streaming"
-        ]
-        
-        # Strong indicators this is a regular TV (not Apple TV device)
-        tv_brand_indicators = [
-            "samsung", "lg ", "sony", "philips", "tcl", "hisense",
-            "panasonic", "sharp", "toshiba", "grundig", "loewe",
-            "bang & olufsen", "b&o", "xiaomi", "thomson", "jvc",
-            "inch", "led", "oled", "qled", "lcd", "smart tv",
-            "4k tv", "uhd tv", "televisie", "fernseher"
-        ]
-        
-        # Check for Apple TV indicators
-        apple_tv_score = 0
-        for indicator in apple_tv_indicators:
-            if indicator in combined_text:
-                apple_tv_score += 1
-                logger.debug(f"✅ Apple TV indicator found: '{indicator}'")
-        
-        # Check for regular TV indicators  
-        tv_brand_score = 0
-        for indicator in tv_brand_indicators:
-            if indicator in combined_text:
-                tv_brand_score += 1
-                logger.debug(f"❌ Regular TV indicator found: '{indicator}'")
-        
-        # Decision logic
-        is_apple_tv = apple_tv_score > 0 and tv_brand_score == 0
-        
-        logger.info(f"🔍 Apple TV Detection - Title: '{listing.title[:50]}...' | Apple TV Score: {apple_tv_score} | TV Brand Score: {tv_brand_score} | Result: {'✅ Apple TV Device' if is_apple_tv else '❌ Regular TV'}")
-        
-        return is_apple_tv
-    
-    def _format_listing_for_discord(self, listing: TVListing) -> Dict:
+    def _format_listing_for_discord(self, listing: ItemListing) -> Dict:
         """Format a listing for Discord webhook."""
         logger.debug(f"📨 Formatting Discord embed for listing: {listing.title}")
         
-        # Detect if this is actually an Apple TV device
-        is_apple_tv = self._is_actual_apple_tv_device(listing)
-        
-        # Create different formatting based on detection
-        if is_apple_tv:
-            color = 0x1e90ff  # Apple blue color
-            title_prefix = "🍎 NEW APPLE TV 4K"
-        else:
-            color = 0x808080  # Gray color for regular TVs
-            title_prefix = "📺 TV Listing (Not Apple TV)"
+        # Create formatting for the item
+        color = 0x1e90ff  # Blue color for new listings
+        title_prefix = f"🔍 NEW {self.item_name.upper()}"
         
         # Discord embed limits:
         # - Title: 256 characters
@@ -369,7 +311,7 @@ class AppleTVMonitor:
         
         # Add simple footer with timestamp
         embed["footer"] = {
-            "text": f"Apple TV 4K Monitor • {datetime.now().strftime('%Y-%m-%d %I:%M %p')}"
+            "text": f"{self.item_name.title()} Monitor • {datetime.now().strftime('%Y-%m-%d %I:%M %p')}"
         }
         
         # Final validation
@@ -393,31 +335,15 @@ class AppleTVMonitor:
             "embeds": [embed]
         }
         
-        # Add @everyone ping only for actual Apple TV devices
-        if is_apple_tv:
-            payload["content"] = "@everyone 🚨 **APPLE TV 4K FOUND!** 🚨"
-            logger.info("🔔 Adding @everyone ping for Apple TV 4K device!")
-        
         return payload
     
-    def _send_discord_notification(self, new_listings: List[TVListing]):
-        """Send Discord notification for new listings (Apple TV devices and regular TVs)."""
-        # Count actual Apple TV devices vs regular TVs
-        apple_tv_count = sum(1 for listing in new_listings if self._is_actual_apple_tv_device(listing))
-        regular_tv_count = len(new_listings) - apple_tv_count
-        
-        logger.info(f"📨 Starting Discord notifications for {len(new_listings)} new listings:")
-        logger.info(f"    🍎 Apple TV devices: {apple_tv_count}")
-        logger.info(f"    📺 Regular TVs: {regular_tv_count}")
-        
-        if apple_tv_count > 0:
-            logger.info("🔔 @everyone pings will be sent for Apple TV devices!")
+    def _send_discord_notification(self, new_listings: List[ItemListing]):
+        """Send Discord notification for new listings."""
+        logger.info(f"📨 Starting Discord notifications for {len(new_listings)} new {self.item_name} listings")
         
         try:
             for i, listing in enumerate(new_listings, 1):
-                is_apple_tv = self._is_actual_apple_tv_device(listing)
-                listing_type = "🍎 Apple TV" if is_apple_tv else "📺 Regular TV"
-                logger.info(f"📨 Processing {listing_type} listing {i}/{len(new_listings)}: {listing.title}")
+                logger.info(f"📨 Processing listing {i}/{len(new_listings)}: {listing.title}")
                 
                 # Format notification (simplified without AI analysis)
                 logger.debug(f"📨 Formatting Discord payload for: {listing.title}")
@@ -450,8 +376,7 @@ class AppleTVMonitor:
                     logger.debug(f"📨 Discord response status: {response.status_code}")
                     
                     if response.status_code == 204:
-                        ping_status = "(@everyone ping sent)" if is_apple_tv else "(no ping)"
-                        logger.info(f"✅ Discord notification sent for {listing_type}: {listing.title} {ping_status}")
+                        logger.info(f"✅ Discord notification sent for: {listing.title}")
                     elif response.status_code == 429:
                         logger.error(f"❌ Discord rate limited: {response.status_code}")
                         logger.debug(f"Rate limit headers: {dict(response.headers)}")
@@ -480,14 +405,14 @@ class AppleTVMonitor:
         """Send a notification when the monitor starts."""
         try:
             embed = {
-                "title": "🍎 Apple TV 4K Monitor Started",
-                "description": "Monitoring for new Apple TV 4K listings on Marktplaats",
+                "title": f"🔍 {self.item_name.title()} Monitor Started",
+                "description": f"Monitoring for new {self.item_name} listings on Marktplaats",
                 "color": 0x1e90ff,
                 "timestamp": datetime.now().isoformat(),
                 "fields": [
                     {
                         "name": "🎯 Target",
-                        "value": "Apple TV 4K listings",
+                        "value": f"{self.item_name.title()} listings",
                         "inline": True
                     },
                     {
@@ -532,7 +457,7 @@ class AppleTVMonitor:
             logger.debug(f"🔍 Check completed in {check_duration:.2f}s")
             
             if new_listings:
-                logger.info(f"🎉 Found {len(new_listings)} new TV listings!")
+                logger.info(f"🎉 Found {len(new_listings)} new {self.item_name} listings!")
                 
                 # Send notifications with timing
                 notification_start = datetime.now()
@@ -637,16 +562,26 @@ def main():
     """Main entry point."""
     # Get configuration from environment variables
     DISCORD_WEBHOOK = os.environ.get('DISCORD_WEBHOOK_URL')
+    SEARCH_URL = os.environ.get('SEARCH_URL')
+    ITEM_NAME = os.environ.get('ITEM_NAME', 'items')
+    CHECK_INTERVAL = int(os.environ.get('CHECK_INTERVAL', '60'))
+    
     if not DISCORD_WEBHOOK:
         logger.error("❌ DISCORD_WEBHOOK_URL environment variable is required")
         logger.info("💡 Set environment variable: export DISCORD_WEBHOOK_URL='your-webhook-url'")
         sys.exit(1)
+        
+    if not SEARCH_URL:
+        logger.error("❌ SEARCH_URL environment variable is required")
+        logger.info("💡 Set environment variable: export SEARCH_URL='https://www.marktplaats.nl/q/your-search-term/'")
+        logger.info("💡 Example: export SEARCH_URL='https://www.marktplaats.nl/q/apple%2btv%2b4k/'")
+        sys.exit(1)
     
     try:
-        monitor = AppleTVMonitor(DISCORD_WEBHOOK)
-        monitor.run_monitor(check_interval=60)
+        monitor = MarktplaatsItemMonitor(DISCORD_WEBHOOK, SEARCH_URL, ITEM_NAME)
+        monitor.run_monitor(check_interval=CHECK_INTERVAL)
     except Exception as e:
-        logger.error(f"Failed to start Apple TV monitor: {e}")
+        logger.error(f"Failed to start {ITEM_NAME} monitor: {e}")
         raise
 
 if __name__ == "__main__":
