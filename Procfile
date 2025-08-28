@@ -1,1 +1,1 @@
-worker: python marktplaats_monitor.py
+worker: python app.py
