@@ -14,8 +14,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Set, List, Dict, Optional
 from dataclasses import asdict
-from urllib.parse import urlencode
-from bs4 import BeautifulSoup
 import hashlib
 import os
 
@@ -44,22 +42,23 @@ logger = logging.getLogger(__name__)
 class MarktplaatsItemMonitor:
     """Monitors Marktplaats for new item listings and sends Discord alerts."""
     
-    def __init__(self, discord_webhook_url: str, search_url: str, item_name: str = "items"):
+    def __init__(self, discord_webhook_url: str, search_url: str, item_name: str = "items",
+                 default_distance_km: int = 50, max_pages: int = 1):
         self.discord_webhook_url = discord_webhook_url
-        self.scraper = MarktplaatsItemScraper()
+        self.scraper = MarktplaatsItemScraper(default_distance_km=default_distance_km)
         self.search_url = search_url
         self.item_name = item_name
-        
+        self.max_pages = max_pages
+
         # Create safe filename from search URL or item name
         safe_name = re.sub(r'[^\w\-_]', '_', item_name.lower())
         self.seen_listings_file = Path(f"seen_{safe_name}_listings.json")
         self.seen_listings: Set[str] = self._load_seen_listings()
-        
-        self.sort_params = {
-            'sortBy': 'SORT_INDEX',
-            'sortOrder': 'DECREASING'
-        }
-        
+
+        # Newest listings first (see scraper sortOptions: SORT_INDEX/DECREASING)
+        self.sort_by = 'SORT_INDEX'
+        self.sort_order = 'DECREASING'
+
         logger.info(f"🚨 {item_name.title()} Monitor initialized - 🎯 {search_url}")
         logger.info(f"📡 Discord: {'✅ Connected' if discord_webhook_url else '❌ Not set'}")
         logger.info(f"📊 Tracking {len(self.seen_listings)} known {item_name} listings")
@@ -94,89 +93,27 @@ class MarktplaatsItemMonitor:
         return hashlib.md5(unique_string.encode('utf-8')).hexdigest()[:12]
     
     def _fetch_current_listings(self, silent_mode: bool = False, show_summary: bool = False) -> List[ItemListing]:
-        """Fetch current listings from the search URL."""
+        """Fetch current listings from the search URL via the Marktplaats API."""
         try:
             logger.debug("🔍 Fetching current listings...")
-            
-            # Construct URL with sort parameters
-            if '?' in self.search_url:
-                url = f"{self.search_url}&{urlencode(self.sort_params)}"
-            else:
-                url = f"{self.search_url}?{urlencode(self.sort_params)}"
-            
-            logger.debug(f"Scraping URL: {url}")
-            
-            response = self.scraper.session.get(url, timeout=10)
-            if response.status_code != 200:
-                logger.error(f"Failed to fetch page: HTTP {response.status_code}")
-                return []
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Find listing containers - Use comprehensive search
-            listing_elements = []
-            
-            # Try various listing container patterns based on actual HTML
-            listing_patterns = [
-                ('li', {'class': 'hz-Listing'}),
-                ('li', {'class': 'mp-Listing'}),
-                ('div', {'class': 'hz-Listing'}),
-                ('div', {'class': 'mp-listing'}),
-                ('article', {'class': 'mp-listing'}),
-                ('div', {'class': 'listing-item'}),
-                ('li', {'class': 'listing'}),
-                ('div', {'data-item-id': True}),  # Items with data attributes
-                ('a', {'href': re.compile(r'/v/.*/m\d+')}),  # Direct links to any listings
-            ]
-            
-            for tag, attrs in listing_patterns:
-                if isinstance(attrs, dict) and 'href' in attrs:
-                    # Special handling for regex patterns
-                    listing_elements = soup.find_all(tag, attrs)
-                else:
-                    listing_elements = soup.find_all(tag, attrs)
-                    
-                if listing_elements:
-                    logger.debug(f"🔍 Found {len(listing_elements)} elements with pattern {tag} {attrs}")
-                    break
-            
-            # If still no elements found, try a broader search
-            if not listing_elements:
-                # Look for any elements containing listing URLs
-                all_links = soup.find_all('a', href=re.compile(r'/v/.*/m\d+'))
-                if all_links:
-                    # Get parent containers that might be listing elements
-                    for link in all_links:
-                        parent = link.find_parent(['li', 'div', 'article'])
-                        if parent and parent not in listing_elements:
-                            listing_elements.append(parent)
-                    logger.debug(f"🔍 Found {len(listing_elements)} elements by link analysis")
-            
-            logger.debug(f"Found {len(listing_elements)} listing elements total")
-            
-            listings = []
-            for element in listing_elements:
-                listing = self.scraper._extract_listing_data(element, soup, silent_mode=silent_mode)
-                if listing:
-                    listings.append(listing)
-            
-            # Only log fetch count if not in silent mode
+
+            listings = self.scraper.scrape_listings(
+                self.search_url,
+                max_pages=self.max_pages,
+                sort_by=self.sort_by,
+                sort_order=self.sort_order,
+            )
+
             if not silent_mode:
                 logger.info(f"🔍 Fetched {len(listings)} current {self.item_name} listings")
-            
-            # Show summary of found listings if requested
+
             if show_summary and listings:
                 logger.info(f"🔍 Current {self.item_name} listings found ({len(listings)} total):")
-                for i, listing in enumerate(listings, 1):  # Show all listings
-                    # Clean title for logging
-                    clean_title = listing.title.replace('\n', ' ').replace('\r', ' ')
-                    clean_title = re.sub(r'€\s*[0-9.,]+details.*$', '', clean_title)
-                    clean_title = re.sub(r'details.*$', '', clean_title, flags=re.IGNORECASE)
-                    clean_title = re.sub(r'\s+', ' ', clean_title).strip()[:60]
-                    logger.info(f"🔍   {i:2d}. {clean_title} | {listing.price} | {listing.location}")
-                
+                for i, listing in enumerate(listings, 1):
+                    logger.info(f"🔍   {i:2d}. {listing.title[:60]} | {listing.price} | {listing.location}")
+
             return listings
-            
+
         except Exception as e:
             logger.error(f"Error fetching listings: {e}")
             return []
@@ -565,6 +502,9 @@ def main():
     SEARCH_URL = os.environ.get('SEARCH_URL')
     ITEM_NAME = os.environ.get('ITEM_NAME', 'items')
     CHECK_INTERVAL = int(os.environ.get('CHECK_INTERVAL', '60'))
+    # Used when SEARCH_URL has a postcode but no explicit radius
+    DISTANCE_KM = int(os.environ.get('DISTANCE_KM', '50'))
+    MAX_PAGES = int(os.environ.get('MAX_PAGES', '1'))
     
     if not DISCORD_WEBHOOK:
         logger.error("❌ DISCORD_WEBHOOK_URL environment variable is required")
@@ -578,7 +518,10 @@ def main():
         sys.exit(1)
     
     try:
-        monitor = MarktplaatsItemMonitor(DISCORD_WEBHOOK, SEARCH_URL, ITEM_NAME)
+        monitor = MarktplaatsItemMonitor(
+            DISCORD_WEBHOOK, SEARCH_URL, ITEM_NAME,
+            default_distance_km=DISTANCE_KM, max_pages=MAX_PAGES,
+        )
         monitor.run_monitor(check_interval=CHECK_INTERVAL)
     except Exception as e:
         logger.error(f"Failed to start {ITEM_NAME} monitor: {e}")
