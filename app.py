@@ -267,11 +267,13 @@ class MarktplaatsItemMonitor:
         if embed_size > 6000:
             logger.warning(f"📨 Embed size ({embed_size}) may exceed Discord limit (6000)")
         
-        # Prepare the Discord payload
+        # Prepare the Discord payload (@everyone ping on every new listing)
         payload = {
-            "embeds": [embed]
+            "content": "@everyone",
+            "embeds": [embed],
+            "allowed_mentions": {"parse": ["everyone"]},
         }
-        
+
         return payload
     
     def _send_discord_notification(self, new_listings: List[ItemListing]):
