@@ -1,0 +1,595 @@
+{
+  "correlationId": "test-fixture",
+  "totalResultCount": 43,
+  "maxAllowedPageNumber": 9,
+  "sortOptions": [
+    {
+      "sortBy": "OPTIMIZED",
+      "sortOrder": "DECREASING"
+    },
+    {
+      "sortBy": "SORT_INDEX",
+      "sortOrder": "DECREASING"
+    },
+    {
+      "sortBy": "SORT_INDEX",
+      "sortOrder": "INCREASING"
+    },
+    {
+      "sortBy": "PRICE",
+      "sortOrder": "INCREASING"
+    },
+    {
+      "sortBy": "PRICE",
+      "sortOrder": "DECREASING"
+    }
+  ],
+  "searchRequest": {
+    "originalRequest": {
+      "categories": {},
+      "searchQuery": "apple homepod mini",
+      "attributes": {},
+      "attributesById": [],
+      "attributesByKey": [],
+      "attributeRanges": [],
+      "attributeLabels": [],
+      "sortOptions": {
+        "sortBy": "SORT_INDEX",
+        "sortOrder": "DECREASING",
+        "sortAttribute": ""
+      },
+      "pagination": {
+        "offset": 0,
+        "limit": 5
+      },
+      "distance": {
+        "postcode": ""
+      },
+      "viewOptions": {
+        "kind": "list-view"
+      },
+      "bypassSpellingSuggestion": false
+    },
+    "categories": {},
+    "searchQuery": "apple homepod mini",
+    "attributes": {},
+    "attributesById": [],
+    "attributesByKey": [],
+    "attributeRanges": [],
+    "attributeLabels": [],
+    "sortOptions": {
+      "sortBy": "SORT_INDEX",
+      "sortOrder": "DECREASING",
+      "sortAttribute": ""
+    },
+    "pagination": {
+      "offset": 0,
+      "limit": 5
+    },
+    "distance": {
+      "postcode": ""
+    },
+    "viewOptions": {
+      "kind": "list-view"
+    },
+    "bypassSpellingSuggestion": false
+  },
+  "listings": [
+    {
+      "itemId": "m2400411641",
+      "title": "Complete Apple Mac Mini M4 Set | LG 27UQ850V | 2TB | HomePod",
+      "description": "Complete apple mac mini m4 premium setup | lg 4k ips black | 2tb dock | garantie wegens andere plannen bied ik mijn complete premium apple werkplek aan. Alles is gekocht eind 2024 en verkeert in uitst",
+      "categorySpecificDescription": "Complete apple mac mini m4 premium setup | lg 4k ips black | 2tb dock | garantie wegens andere plannen bied ik mijn complete premium apple werkplek aan. Alles is gekocht eind 2024 en verkeert in uitstekende staat. Het gaat om een complete minimalisti...",
+      "thinContent": false,
+      "priceInfo": {
+        "priceCents": 149900,
+        "priceType": "MIN_BID"
+      },
+      "location": {
+        "cityName": "Ruurlo",
+        "countryName": "Nederland",
+        "countryAbbreviation": "NL",
+        "distanceMeters": -1000,
+        "isBuyerLocation": false,
+        "onCountryLevel": false,
+        "abroad": false,
+        "latitude": 52.095776508307,
+        "longitude": 6.460807473286
+      },
+      "date": "Vandaag",
+      "imageUrls": [
+        "//images.marktplaats.com/api/v1/hz-mp-pro-listing/images/e66635da-2505-4698-bb87-cbbb0f793d5a?rule=ecg_mp_eps$_82.jpg"
+      ],
+      "sellerInformation": {
+        "sellerId": 1000,
+        "sellerName": "Test Seller 0",
+        "showSoiUrl": true,
+        "showWebsiteUrl": false,
+        "isVerified": false
+      },
+      "categoryId": 324,
+      "priorityProduct": "DAGTOPPER",
+      "videoOnVip": false,
+      "urgencyFeatureActive": false,
+      "napAvailable": false,
+      "attributes": [
+        {
+          "key": "condition",
+          "value": "Zo goed als nieuw",
+          "values": [
+            "Zo goed als nieuw"
+          ]
+        },
+        {
+          "key": "delivery",
+          "value": "Ophalen",
+          "values": [
+            "Ophalen"
+          ]
+        }
+      ],
+      "extendedAttributes": [
+        {
+          "key": "delivery",
+          "value": "Ophalen",
+          "values": [
+            "Ophalen"
+          ]
+        },
+        {
+          "key": "type",
+          "value": "SSD",
+          "values": [
+            "SSD"
+          ]
+        },
+        {
+          "key": "model",
+          "value": "IMac",
+          "values": [
+            "IMac"
+          ]
+        },
+        {
+          "key": "condition",
+          "value": "Zo goed als nieuw",
+          "values": [
+            "Zo goed als nieuw"
+          ]
+        }
+      ],
+      "traits": [
+        "DAG_TOPPER_3DAYS",
+        "PACKAGE_FREE"
+      ],
+      "verticals": [
+        "desktop_apple",
+        "barcode-supported",
+        "computers_and_software"
+      ],
+      "pictures": [
+        {
+          "id": 0,
+          "mediaId": "",
+          "url": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/e66635da-2505-4698-bb87-cbbb0f793d5a?rule=ecg_mp_eps$_#.jpg",
+          "extraSmallUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/e66635da-2505-4698-bb87-cbbb0f793d5a?rule=ecg_mp_eps$_14.jpg",
+          "mediumUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/e66635da-2505-4698-bb87-cbbb0f793d5a?rule=ecg_mp_eps$_82.jpg",
+          "largeUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/e66635da-2505-4698-bb87-cbbb0f793d5a?rule=ecg_mp_eps$_83.jpg",
+          "extraExtraLargeUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/e66635da-2505-4698-bb87-cbbb0f793d5a?rule=ecg_mp_eps$_85.jpg",
+          "aspectRatio": {
+            "width": 4,
+            "height": 3
+          }
+        }
+      ],
+      "searchType": "TokenMatch",
+      "reserved": false,
+      "vipUrl": "/v/computers-en-software/apple-desktops/m2400411641-complete-apple-mac-mini-m4-set-lg-27uq850v-2tb-homepod"
+    },
+    {
+      "itemId": "m2400532663",
+      "title": "Apple HomePod mini - Yellow",
+      "description": "Nieuw. Alleen uit de doos gehaald voor de foto. Apple homepod mini - yellow. Virtuele assistent: apple siri, vorm: rond, kleur van het product: geel. Luidspreker soort: volledig bereik, volumeregeling",
+      "categorySpecificDescription": "Nieuw. Alleen uit de doos gehaald voor de foto. Apple homepod mini - yellow. Virtuele assistent: apple siri, vorm: rond, kleur van het product: geel. Luidspreker soort: volledig bereik, volumeregeling: touch, muziek-apps: apple music, tunein. Connect...",
+      "thinContent": false,
+      "priceInfo": {
+        "priceCents": 8000,
+        "priceType": "MIN_BID"
+      },
+      "location": {
+        "cityName": "Monnickendam",
+        "countryName": "Nederland",
+        "countryAbbreviation": "NL",
+        "distanceMeters": -1000,
+        "isBuyerLocation": false,
+        "onCountryLevel": false,
+        "abroad": false,
+        "latitude": 52.462962940081,
+        "longitude": 5.0343588009479
+      },
+      "date": "Vandaag",
+      "imageUrls": [
+        "//images.marktplaats.com/api/v1/hz-mp-pro-listing/images/c4cde064-3fdd-4e2c-9ba7-b6e7e3ebebd2?rule=ecg_mp_eps$_82.jpg"
+      ],
+      "sellerInformation": {
+        "sellerId": 1001,
+        "sellerName": "Test Seller 1",
+        "showSoiUrl": true,
+        "showWebsiteUrl": false,
+        "isVerified": false
+      },
+      "categoryId": 38,
+      "priorityProduct": "NONE",
+      "videoOnVip": false,
+      "urgencyFeatureActive": false,
+      "napAvailable": false,
+      "attributes": [
+        {
+          "key": "condition",
+          "value": "Nieuw",
+          "values": [
+            "Nieuw"
+          ]
+        },
+        {
+          "key": "delivery",
+          "value": "Ophalen of Verzenden",
+          "values": [
+            "Ophalen of Verzenden"
+          ]
+        }
+      ],
+      "extendedAttributes": [
+        {
+          "key": "brand",
+          "value": "Overige merken",
+          "values": [
+            "Overige merken"
+          ]
+        },
+        {
+          "key": "type",
+          "value": "Overige typen",
+          "values": [
+            "Overige typen"
+          ]
+        },
+        {
+          "key": "condition",
+          "value": "Nieuw",
+          "values": [
+            "Nieuw"
+          ]
+        },
+        {
+          "key": "delivery",
+          "value": "Ophalen of Verzenden",
+          "values": [
+            "Ophalen of Verzenden"
+          ]
+        }
+      ],
+      "traits": [
+        "PACKAGE_FREE"
+      ],
+      "verticals": [
+        "barcode-supported",
+        "audio_tv_photo",
+        "speakers"
+      ],
+      "pictures": [
+        {
+          "id": 0,
+          "mediaId": "",
+          "url": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/c4cde064-3fdd-4e2c-9ba7-b6e7e3ebebd2?rule=ecg_mp_eps$_#.jpg",
+          "extraSmallUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/c4cde064-3fdd-4e2c-9ba7-b6e7e3ebebd2?rule=ecg_mp_eps$_14.jpg",
+          "mediumUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/c4cde064-3fdd-4e2c-9ba7-b6e7e3ebebd2?rule=ecg_mp_eps$_82.jpg",
+          "largeUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/c4cde064-3fdd-4e2c-9ba7-b6e7e3ebebd2?rule=ecg_mp_eps$_83.jpg",
+          "extraExtraLargeUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/c4cde064-3fdd-4e2c-9ba7-b6e7e3ebebd2?rule=ecg_mp_eps$_85.jpg",
+          "aspectRatio": {
+            "width": 4,
+            "height": 3
+          }
+        }
+      ],
+      "searchType": "TokenMatch",
+      "reserved": true,
+      "vipUrl": "/v/audio-tv-en-foto/luidsprekers/m2400532663-apple-homepod-mini-yellow"
+    },
+    {
+      "itemId": "m2400507708",
+      "title": "Apple Homepod mini blauw (nieuw)",
+      "description": "2 stuks nieuwe homepod mini in de kleur blauw, sticker zit er nog op. Verkoop ze per stuk of tegelijk, bieden per stuk.",
+      "categorySpecificDescription": "2 stuks nieuwe homepod mini in de kleur blauw, sticker zit er nog op. Verkoop ze per stuk of tegelijk, bieden per stuk.",
+      "thinContent": true,
+      "priceInfo": {
+        "priceCents": 0,
+        "priceType": "FAST_BID"
+      },
+      "location": {
+        "cityName": "Berkel en Rodenrijs",
+        "countryName": "Nederland",
+        "countryAbbreviation": "NL",
+        "distanceMeters": -1000,
+        "isBuyerLocation": false,
+        "onCountryLevel": false,
+        "abroad": false,
+        "latitude": 51.998038676942,
+        "longitude": 4.4677539488965
+      },
+      "date": "Vandaag",
+      "imageUrls": [
+        "//images.marktplaats.com/api/v1/hz-mp-pro-listing/images/3bfe20f2-2171-4d1d-8d44-9a42769c7d0c?rule=ecg_mp_eps$_82.jpg"
+      ],
+      "sellerInformation": {
+        "sellerId": 1002,
+        "sellerName": "Test Seller 2",
+        "showSoiUrl": true,
+        "showWebsiteUrl": false,
+        "isVerified": false
+      },
+      "categoryId": 332,
+      "priorityProduct": "NONE",
+      "videoOnVip": false,
+      "urgencyFeatureActive": false,
+      "napAvailable": false,
+      "attributes": [
+        {
+          "key": "condition",
+          "value": "Nieuw",
+          "values": [
+            "Nieuw"
+          ]
+        },
+        {
+          "key": "delivery",
+          "value": "Ophalen of Verzenden",
+          "values": [
+            "Ophalen of Verzenden"
+          ]
+        }
+      ],
+      "extendedAttributes": [
+        {
+          "key": "delivery",
+          "value": "Ophalen of Verzenden",
+          "values": [
+            "Ophalen of Verzenden"
+          ]
+        },
+        {
+          "key": "condition",
+          "value": "Nieuw",
+          "values": [
+            "Nieuw"
+          ]
+        }
+      ],
+      "traits": [
+        "PACKAGE_FREE"
+      ],
+      "verticals": [
+        "soundcards_and_speakers",
+        "barcode-supported",
+        "computers_and_software"
+      ],
+      "pictures": [
+        {
+          "id": 0,
+          "mediaId": "",
+          "url": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/3bfe20f2-2171-4d1d-8d44-9a42769c7d0c?rule=ecg_mp_eps$_#.jpg",
+          "extraSmallUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/3bfe20f2-2171-4d1d-8d44-9a42769c7d0c?rule=ecg_mp_eps$_14.jpg",
+          "mediumUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/3bfe20f2-2171-4d1d-8d44-9a42769c7d0c?rule=ecg_mp_eps$_82.jpg",
+          "largeUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/3bfe20f2-2171-4d1d-8d44-9a42769c7d0c?rule=ecg_mp_eps$_83.jpg",
+          "extraExtraLargeUrl": "https://images.marktplaats.com/api/v1/hz-mp-pro-listing/images/3bfe20f2-2171-4d1d-8d44-9a42769c7d0c?rule=ecg_mp_eps$_85.jpg",
+          "aspectRatio": {
+            "width": 3,
+            "height": 4
+          }
+        }
+      ],
+      "searchType": "TokenMatch",
+      "reserved": false,
+      "vipUrl": "/v/computers-en-software/pc-speakers/m2400507708-apple-homepod-mini-blauw-nieuw"
+    }
+  ],
+  "topBlock": [
+    {
+      "itemId": "a1525814508",
+      "title": "Apple HomePod Mini - Zwart",
+      "description": "De slimme apple homepod mini speaker zorgt voor kamerbreed geluid, gemakkelijk te bedienen via spraakbesturing. Zo gebruik je deze speaker als assistent bij het bedienen van jouw slimme woning. De hom",
+      "categorySpecificDescription": "De slimme apple homepod mini speaker zorgt voor kamerbreed geluid, gemakkelijk te bedienen via spraakbesturing. Zo gebruik je deze speaker als assistent bij het bedienen van jouw slimme woning. De homepod mini is zeer compact van formaat, maar biedt ...",
+      "thinContent": false,
+      "priceInfo": {
+        "priceCents": 9995,
+        "priceType": "FIXED"
+      },
+      "location": {
+        "distanceMeters": -1000,
+        "isBuyerLocation": false,
+        "onCountryLevel": true,
+        "abroad": false,
+        "latitude": 0,
+        "longitude": 0
+      },
+      "date": "Vandaag",
+      "imageUrls": [
+        "//admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/78/782eae43-a138-49e6-8262-900bc7ab792f?rule=eps_82.JPG"
+      ],
+      "sellerInformation": {
+        "sellerId": 1090,
+        "sellerName": "Test Seller 90",
+        "showSoiUrl": true,
+        "showWebsiteUrl": true,
+        "sellerWebsiteUrl": "https://admarkt.marktplaats.nl/bside/url/5pW4yDXLSS2ZfdwzcNsXPD8qpNAdd9pQuq_9L3fv1y4-DcepOV5CPTm4dNZyOwci0mtg9hUhV1_BSkPwDl3UsktJ_7S897wlh2tG5Gdf9mX8_K1mFvFtT76MaenUKGsuoArFzhy2_qr5rjU_q5qyb7xioCpZJ75cQTn828CSIJ26CvvZznC0Xi5YSg0BArzSOmh4xSSGe_hsFvGQDkPVz6AQKMPkxP6psq9evcxatHhhBUw-PW3gI0C2x3Su438v1Vvq2lYADKpTlNGPzoutjcf2QQho4W334sVn6_7hGUmtTh3kHEB6ocPC7NhdXcrhAmyywPov7T4fI-eLFzoyJSTEqF2XVtzAOz_wX-7eZBfUVex_KzxtN-Q3mox0cM-aN43KVIyWSYuB-InjLbpUfYlQA0Vsoj_SEBkBYpputRKF_Au5slqjn3ZpQdWwN5CixO7usqxVbQTtwFGGm-HQePL9wKx2nzMAlSB6iQ08qv9ZBqqeyVvg2mG8-QeDzEI93RSJ322uDbB2XQKLdIXlAmq7jNYWZ9Y0MTFhGyyZZJYpTpnAiU9YJWD9Wb8uMEvDC9Xru38gIJI_6kzt9RYzD475rZfNOkKquyorIcixdAxWs2mjt06DXYPJKyYnqfl0o3GjGVHFGZuIET6qXCBstF7IEbRm_pYTx9uMIb4835RBfy5VpqHB6p6T8pcLbLVvXrcM9U33kGjL7kJQbo8h7h16duMxwt7nvzPbJX5u3bCJSqoDBt8uY8cBiGPYGLNfZywZ_E3bOQ9S64ssEofUJ1U5zDQQvZSOExEk86WIDsfU1VvcDzm6OhfrqfWE_5QG4DICKoPAtVW2VfoPmpyE7C6NL_7nucKJF4ZbIZphY6LiiBZpWCtHjawPtEvm6NqQw41bqi9kAyGtt5IT673ZgGuDpA0frno-VypstEYNpGr5EX8iRSGXU788E96NAFxXMcDBY6aDyZi4Z_OHud-lY6gTmDEOYWK2KqL04J-yZD2_1sVcUri0VFwVIvQRE5-HrF7SSe-j_tY6Tt3hCC4B0JKlfsKgi2kWg2tIx1bYPyNQS0Pfma7IY58AkAuRP_We",
+        "isVerified": false
+      },
+      "categoryId": 41,
+      "trackingData": "6c8Jd72OKxA5MksHIDVK46hPEHcCJWRS_zvCJnGRfaDVKUDR6np81Jwbbr3OkebYKjMuTWRv1-fqjSuUyCc5tbv-Cr6aG3scmb36LH-Jt4lkjz-CtzF22gw4rrZQfMfrDjTZ7YJd7UsuRwerdic7mfUgAFdKv-CmrbQ5H3jb8G1jxFKwADcemz0XXvZt72oaL4rIBoxfj7eKR1Co57C6kLeVJ8nxiIXPfSvTwQP-sMuxt0uXuPfP6Z0S95KCtSob0qYYAz-JUyqMDur1B6TW5K9dQ8TzW4qlERTPEc37ISMRlEsYDXVjwvIGb_pZYQpqTilz45trYZZM_oUQYqKcn_fQb_EOp_-UCadZiwtj5lYkPQU04UdmwLqkqSxCsPVFeAf85IIHvBIVS-aRT_mdj5_YMz3V9jrTLaLaGI-EhTD2yjgvRIhkxhZVzXGrfOZXzwb0ITie23oGtiC8QVPMeyZBJBAyVO_J0YBpa2ZLMBUlcJa-4hujukNPaMjpraUVKEI8-xRbuTrAtV_fbXNI6ssaFWD7uH4LWrYUIcA2T7wDzsc0ipznV7oFHl23zdve",
+      "pageLocation": "L0_SEARCH_TOP",
+      "priorityProduct": "TOPADVERTENTIE",
+      "videoOnVip": false,
+      "urgencyFeatureActive": false,
+      "napAvailable": false,
+      "attributes": [
+        {
+          "key": "condition",
+          "value": "Zo goed als nieuw",
+          "values": [
+            "Zo goed als nieuw"
+          ]
+        },
+        {
+          "key": "delivery",
+          "value": "Verzenden",
+          "values": [
+            "Verzenden"
+          ]
+        }
+      ],
+      "extendedAttributes": [
+        {
+          "key": "delivery",
+          "value": "Verzenden",
+          "values": [
+            "Verzenden"
+          ]
+        },
+        {
+          "key": "condition",
+          "value": "Zo goed als nieuw",
+          "values": [
+            "Zo goed als nieuw"
+          ]
+        }
+      ],
+      "traits": [
+        "ADMARKT_CONSOLE",
+        "PROFILE"
+      ],
+      "verticals": [
+        "other_audio_tv_photo",
+        "barcode-supported",
+        "audio_tv_photo"
+      ],
+      "pictures": [
+        {
+          "id": 0,
+          "mediaId": "00000000-0000-0000-0000-000000000000",
+          "url": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/78/782eae43-a138-49e6-8262-900bc7ab792f?rule=eps_#.JPG",
+          "sizes": {
+            "XL": "84",
+            "M": "82",
+            "XXXL": "86",
+            "L": "83",
+            "XXL": "85",
+            "XXS": "14",
+            "XS": "14",
+            "S": "82"
+          },
+          "extraSmallUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/78/782eae43-a138-49e6-8262-900bc7ab792f?rule=eps_14.JPG",
+          "mediumUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/78/782eae43-a138-49e6-8262-900bc7ab792f?rule=eps_82.JPG",
+          "largeUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/78/782eae43-a138-49e6-8262-900bc7ab792f?rule=eps_83.JPG",
+          "extraExtraLargeUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/78/782eae43-a138-49e6-8262-900bc7ab792f?rule=eps_85.JPG",
+          "aspectRatio": {
+            "width": 317,
+            "height": 291
+          }
+        }
+      ],
+      "reserved": false,
+      "vipUrl": "/v/audio-tv-en-foto/overige-audio-tv-en-foto/a1525814508-apple-homepod-mini-zwart"
+    },
+    {
+      "itemId": "a1521273105",
+      "title": "LED DIMMER | MATTER | DRUK/DRAAI | 0-250W (RLC)",
+      "description": "0-250 watt geruisloos dimmen 230v fase aan- en afsnijding 2 jaar garantie eco-dim.07 Matter led dimmer – de toekomst van slimme verlichting de eco-dim.07 Matter led dimmer is dé slimme dimoplossing vo",
+      "categorySpecificDescription": "0-250 watt geruisloos dimmen 230v fase aan- en afsnijding 2 jaar garantie eco-dim.07 Matter led dimmer – de toekomst van slimme verlichting de eco-dim.07 Matter led dimmer is dé slimme dimoplossing voor moderne huishoudens en kantoren die gebruik mak...",
+      "thinContent": false,
+      "priceInfo": {
+        "priceCents": 10400,
+        "priceType": "FIXED"
+      },
+      "location": {
+        "distanceMeters": -1000,
+        "isBuyerLocation": false,
+        "onCountryLevel": true,
+        "abroad": false,
+        "latitude": 0,
+        "longitude": 0
+      },
+      "date": "Vandaag",
+      "imageUrls": [
+        "//admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/01/01df6148-8191-41a5-8c94-b95e25eada2d?rule=eps_82.JPG"
+      ],
+      "sellerInformation": {
+        "sellerId": 1091,
+        "sellerName": "Test Seller 91",
+        "showSoiUrl": true,
+        "showWebsiteUrl": true,
+        "sellerWebsiteUrl": "https://admarkt.marktplaats.nl/bside/url/-gE2vtoHEdEXG2p4FBpFyvEyT7Zqz2qPoBiFmy7bFHKwLhbWG2VvXJf5QWxOt4IcH_oB1WsNw3BPw4rIIEagR638L3CVmgyl7Vz50c7qSUCzxuNB-josUe-VXwZfatIPU5K9ovX5mzk-gx5WAj9t3OiI2gOHcH8WgPP1i80tP2m1usudkKDDKmxcaaA2sG1Q1X_0BCpqXiHN53Ojt4cLiErbqhD3ofhc8jmP_Bkv9R69ADtsHFPrAlj4aa7XR-zxb6pDYEpvCtieJW7ahKfLiRnP2yxuLjbxk8HWsC1UD0VPYsvn4HTnDgMupPm33P1-YDYD_GVKCxM-accqUTN-ghTXKhNzJsbSy827HgsoLMObO_A7B3l6A9LeGo6pPwyhEuKLxbpHXKRZ0gLDiIMXRQXjFDYXfInF0gCqD5aD_OOkzI6zLuYneuUUXVEIMbSbfb9uPKN5Mc_aRWDbfu8yNrCz4bYrlYf1wbcp8vLRQHk8YXlbnfl6ceqdQwHCTUabhE6KyRn-OGwCHJBHcdvMk9FgudA8lXvapogIfU0toQIQAex6lYYt2rQ-Io0akx6JThTZcmNQ8kyXe9l0-B8UKa5-pg1iSzI2w8KmMYQHwsvNTJF1xp-WTWF18v8XQsVPCV61WqNONXCcf1ZNKtAsJBvUuLFm1vZL6eGxOqqIhseurbivxtg4GBYwfWcTBg1KegKbjWfIo57cN0Ed0PzRJgfFRS2DdOWZwoeI6InnHvZ8RqdeLnBczBSz6ZuOQqiCFnYhuxq1kFfeqbeJuVeathxt-KVVEFtnYB3nfRf8NGihIMofNusCtrM2oewf4y5yY2Y5oqfkR_iLbiAqaZhXVaF-1beiWDDoNlxEwUhQr94Ticd6WcBxx1vrgmJ2mkJsUyhJ1ozvcHrKGXTNqHbYV0RJMc4UbUiUqqEv3l9SqoP4aYJ3iQYltsGffprouqPMM5N--GefC6uHRdZR_7lFxpKLuodrzl4H_iqBwjNDsQLk2MLMVtIF5ry9F7QqzF17ePVgVQC0wYvg8756AmjPPCgdjVAgyEFly8CC7X0OF9LhYMar-kMODw2bKkBsO0Kj",
+        "isVerified": false
+      },
+      "categoryId": 1265,
+      "trackingData": "OK0Gx8IG487StrvobNb18fbbh-IitUJK_vxOS8P-id3ejITZPnL3enpkQ7x1sblPbxgaVBJtbD6Sl_eNOVS4UWpBZbj63R3rejyS7F4XQ7qE1FO3r9QSLhAG95w3qgabhgcIYjNk2svvQrqLyxRwDx5JScfkZzZCh_MDm4nGG6w8GBZhjqyasVEa4tKY34xciUv4GAdhlBbJzwYOoqa5NP-6cHrCDMYrxFHfiQ_ejdplKmQ-wZhmv6Sqdi6xyEljL7_l_9dSMTFZeRT1x4op1_1qWecZTtCibF4TxGgWuU0rwWfqxuRJYz3kwcE2N1Y7WYuUWXdouBK73YbYLR8Bmnb-DY5e_HaVD-H7gByjzruFjMJbKBcFCQ1EluHpyp30Zr8YOJMAJIRbqrxpJ6geTKgRf_0LtnWf0XGbEzjS6jQ4wJ3AATXqzJgbTaWyBSiWoTlhFr-8LaSsgKs8ghPWD-JLH5lKHHnHhf898oiCubs3c5bkhfR8sHf7syJDtYLnzGjHPme3GYC6iUxeSVrXwBAg63cxQz9ck5L3oU68k_aNPFUFO8KfOzG3VEtYGP5g",
+      "pageLocation": "L0_SEARCH_TOP",
+      "priorityProduct": "TOPADVERTENTIE",
+      "videoOnVip": false,
+      "urgencyFeatureActive": false,
+      "napAvailable": false,
+      "attributes": [
+        {
+          "key": "condition",
+          "value": "Nieuw",
+          "values": [
+            "Nieuw"
+          ]
+        }
+      ],
+      "extendedAttributes": [
+        {
+          "key": "condition",
+          "value": "Nieuw",
+          "values": [
+            "Nieuw"
+          ]
+        }
+      ],
+      "traits": [
+        "PROFILE",
+        "ADMARKT_CONSOLE"
+      ],
+      "verticals": [
+        "lamps_all_others",
+        "house_and_decoration"
+      ],
+      "pictures": [
+        {
+          "id": 0,
+          "mediaId": "00000000-0000-0000-0000-000000000000",
+          "url": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/01/01df6148-8191-41a5-8c94-b95e25eada2d?rule=eps_#.JPG",
+          "sizes": {
+            "XL": "84",
+            "M": "82",
+            "XXXL": "86",
+            "L": "83",
+            "XXL": "85",
+            "XXS": "14",
+            "XS": "14",
+            "S": "82"
+          },
+          "extraSmallUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/01/01df6148-8191-41a5-8c94-b95e25eada2d?rule=eps_14.JPG",
+          "mediumUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/01/01df6148-8191-41a5-8c94-b95e25eada2d?rule=eps_82.JPG",
+          "largeUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/01/01df6148-8191-41a5-8c94-b95e25eada2d?rule=eps_83.JPG",
+          "extraExtraLargeUrl": "https://admarkt-cdn.marktplaats.com/api/v1/icas-mp-pro-admarkt/images/01/01df6148-8191-41a5-8c94-b95e25eada2d?rule=eps_85.JPG",
+          "aspectRatio": {
+            "width": 1,
+            "height": 1
+          }
+        }
+      ],
+      "reserved": false,
+      "vipUrl": "/v/huis-en-inrichting/lampen-overige/a1521273105-led-dimmer-matter-druk-draai-0-250w-rlc"
+    }
+  ]
+}

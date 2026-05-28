@@ -1,2 +1,6 @@
+# Runtime dependencies (mirrors [project.dependencies] in pyproject.toml).
+# For development tooling use: pip install -e ".[dev]"
 requests>=2.31.0
 python-dotenv>=1.0.0
+apprise>=1.7.0
+PyYAML>=6.0.1

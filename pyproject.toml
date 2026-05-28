@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "marktplaats-monitor"
+version = "1.0.0"
+description = "Self-hosted Marktplaats listing monitor with multi-service notifications (Apprise) and configurable saved searches."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "jasp-nerd" }]
+keywords = ["marktplaats", "scraper", "monitor", "notifications", "apprise", "discord"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+]
+dependencies = [
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "apprise>=1.7.0",
+    "PyYAML>=6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.5.0",
+    "black>=24.0.0",
+]
+
+[project.scripts]
+marktplaats-monitor = "marktplaats_monitor.cli:main"
+
+[project.urls]
+Repository = "https://github.com/jasp-nerd/marktplaats-scraper"
+
+[tool.hatch.build.targets.wheel]
+packages = ["marktplaats_monitor"]
+# Vendored category JSON must ship in the wheel even if a broad .gitignore
+# pattern would otherwise exclude it.
+artifacts = ["marktplaats_monitor/data/*.json", "marktplaats_monitor/data/VENDOR.md"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+ignore = ["E501"]  # line length handled by black
+
+[tool.black]
+target-version = ["py311"]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

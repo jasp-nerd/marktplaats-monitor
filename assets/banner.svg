@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" role="img" aria-label="marktplaats-monitor — self-hosted saved-search alerts for Marktplaats">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1a"/>
+      <stop offset="100%" stop-color="#171f33"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <pattern id="grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0 L0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="360" fill="url(#bg)"/>
+  <rect width="1280" height="360" fill="url(#grid)"/>
+
+  <!-- top-left shell prompt -->
+  <text x="80" y="62" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" fill="#64748b" opacity="0.85">$ marktplaats-monitor run</text>
+
+  <!-- title -->
+  <text x="80" y="170" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="76" font-weight="700" fill="#f8fafc" letter-spacing="-3">marktplaats-monitor</text>
+
+  <!-- accent underline -->
+  <rect x="80" y="190" width="140" height="4" fill="url(#accent)" rx="2"/>
+
+  <!-- subtitle -->
+  <text x="80" y="232" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="500" fill="#cbd5e1">Self-hosted saved-search alerts for Marktplaats</text>
+
+  <!-- destinations row -->
+  <text x="80" y="266" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" fill="#94a3b8">Discord  ·  Telegram  ·  ntfy  ·  Slack  ·  email  ·  +100 services via Apprise</text>
+
+  <!-- bottom-right log line -->
+  <text x="1200" y="320" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13" fill="#64748b" opacity="0.85">[apple-homepod] fetched=55 new=2 → Discord ✓</text>
+
+  <!-- subtle vertical edge accent -->
+  <rect x="0" y="0" width="4" height="360" fill="url(#accent)" opacity="0.85"/>
+</svg>

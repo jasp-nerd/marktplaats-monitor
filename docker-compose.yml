@@ -1,0 +1,15 @@
+services:
+  monitor:
+    build: .
+    image: marktplaats-monitor:latest
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Your config (edit locally, mounted read-only)
+      - ./config.yaml:/app/config.yaml:ro
+      # Persisted SQLite state across restarts/upgrades
+      - mp_data:/app/data
+    command: ["run"]
+
+volumes:
+  mp_data:

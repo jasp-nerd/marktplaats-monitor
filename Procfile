@@ -1,1 +1,1 @@
-worker: python app.py
+worker: python -m marktplaats_monitor run

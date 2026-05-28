@@ -1,0 +1,169 @@
+# ============================================================================
+#  Marktplaats Monitor — configuration
+#
+#  1. Copy this file to     config.yaml
+#  2. Copy .env.example to  .env   and put your notification URL there
+#  3. Edit the `searches:` list at the bottom
+#
+#  Legend for every option below:
+#    [REQUIRED]     you must set this yourself
+#    [RECOMMENDED]  has a default, but you almost certainly want to set it
+#    [OPTIONAL]     safe to leave as-is or delete entirely
+#
+#  Secrets (your notification URL) never go in this file — they live in .env
+#  and are referenced here as  env:NAME .
+# ============================================================================
+
+
+# ----------------------------------------------------------------------------
+#  defaults:  — fallback settings applied to EVERY search.
+#
+#  The whole `defaults:` block is [OPTIONAL]. If you delete it, the built-in
+#  defaults shown below are used. Any value here can be overridden per search.
+# ----------------------------------------------------------------------------
+defaults:
+
+  # [OPTIONAL] Seconds between checks of all your searches. Default: 60.
+  #            Lower = faster alerts but more requests. 60 is a good balance.
+  check_interval: 60
+
+  # [OPTIONAL] How many pages of results to fetch per check. Default: 1.
+  #            One page = up to 100 listings (page_size below). Newest
+  #            listings are always on page 1, so 1 is fine for "new listing"
+  #            alerts. Raise it only if you want price-drop detection to
+  #            cover more than the 100 most-recent listings (each extra page
+  #            is one more request).
+  max_pages: 1
+
+  # [OPTIONAL] Listings fetched per page/request. Default: 100 (the maximum
+  #            Marktplaats allows — higher values are rejected by their API).
+  #            Leave at 100.
+  page_size: 100
+
+  # [OPTIONAL] Search radius in km. ONLY has an effect if a search's url
+  #            contains a postcode (e.g. .../q/fiets/#postcode:1234AB).
+  #            Default: 50.
+  distance_km: 50
+
+  # [OPTIONAL] Restrict to a condition. Default: null (any condition).
+  #            One of: new | as_good_as_new | used | refurbished | not_working
+  condition: null
+
+  # [OPTIONAL] Restrict to a Marktplaats category by name, e.g.
+  #            "Fietsen en Brommers". Default: null (all categories).
+  category: null
+
+  # [OPTIONAL] Drop sponsored "Topadvertentie" results. Default: true.
+  exclude_topblock: true
+
+  # [OPTIONAL] Drop paid promotions (DAGTOPPER / Topadvertentie) that the API
+  #            floats to the top and refreshes daily. KEEP THIS TRUE: with it
+  #            off, busy searches return a static wall of promo listings and
+  #            genuinely new ones never get detected. Default: true.
+  exclude_promoted: true
+
+  # [OPTIONAL] Only consider listings posted in the last N minutes.
+  #            Default: null (no time limit).
+  offered_since_minutes: null
+
+  # [RECOMMENDED] true = the very first check just records what's already
+  #               online WITHOUT alerting, so you don't get flooded on
+  #               startup. Afterwards you only get genuinely new listings.
+  #               Keep this true unless you know what you're doing.
+  seed_without_notify: true
+
+  # --- Networking [OPTIONAL] — sensible defaults, rarely need changing ---
+  http:
+    user_agent: null      # null = a normal desktop browser UA
+    proxy: null            # or "env:HTTP_PROXY" to route through a proxy
+    timeout: 15            # seconds per request
+    max_retries: 3         # retries on rate-limit / network errors
+
+  # --- Where notifications go ---
+  notify:
+    # [OPTIONAL] apprise (default) sends to ANY service (Discord, Telegram,
+    #            ntfy, email, Slack, ...). Use discord_native only if you
+    #            want the fancy rich Discord embed specifically.
+    backend: apprise
+
+    # [REQUIRED] Your notification target(s). Put the real value in .env as
+    #            APPRISE_URLS (see .env.example for the URL formats). Without
+    #            this, nothing is actually delivered.
+    apprise_urls: ["env:APPRISE_URLS"]
+
+    # [OPTIONAL] Only used if backend is discord_native. Put the real webhook
+    #            in .env. Leave null otherwise.
+    discord_webhook: null
+
+    # [OPTIONAL] Attach the listing photo to the notification. Default: true.
+    attach_image: true
+
+    # [OPTIONAL] Ping people in Discord. Default: none (no ping).
+    #            none | everyone | here | role:<role_id>
+    mention: none
+
+    # [OPTIONAL] Advanced routing — leave as-is unless you want new-listing
+    #            alerts and error alerts to go to different places.
+    tags:
+      listings: ["listings"]
+      errors: ["errors"]
+
+  # [OPTIONAL] Pluggable listing scorer. Default: noop (does nothing).
+  #            Reserved for a future AI "is this a good deal?" scorer.
+  evaluator:
+    type: noop
+    options: {}
+
+
+# ----------------------------------------------------------------------------
+#  searches:  — [REQUIRED] the list of things you want to monitor.
+#
+#  Per search you need `id` PLUS one of `url` / `query` / `category`.
+#  Everything else is optional and falls back to the `defaults:` above.
+#
+#    id     [REQUIRED]  short stable name, letters/digits/-/_ only. Used to
+#                       track history in the database. DON'T change it later
+#                       (changing it = a fresh start, re-seeds from scratch).
+#
+#    Pick ONE way to say WHAT to search (you can also combine them):
+#    url       the Marktplaats search to watch — search on marktplaats.nl with
+#              the filters you want, then copy the address bar. A trailing
+#              #postcode:1234AB works.
+#    query     just the search words, e.g. "racefiets". Simpler than a URL;
+#              combine with postcode / distance_km / price / condition below
+#              instead of building a URL by hand.
+#    category  a category name instead of/with a query (see `category` above).
+#              (If you give more than one, `query` overrides the URL's search term.)
+#
+#    name   [OPTIONAL]  label shown in alerts/stats. Defaults to `id`.
+# ----------------------------------------------------------------------------
+searches:
+
+  # --- Simplest: just words, no URL needed ---
+  - id: racefiets
+    query: "racefiets"
+
+  # --- Same idea, narrowed by location + price (still no URL) ---
+  - id: bankstel
+    query: "bankstel"
+    postcode: "1011 AB"        # [OPTIONAL] filter around this postcode
+    distance_km: 20            # [OPTIONAL] radius for the postcode above
+    price_max: 150             # [OPTIONAL] euros
+
+  # --- Or paste a full Marktplaats URL — fully-annotated example.
+  #     Everything except id + one of (url|query|category) is OPTIONAL ---
+  - id: game-console
+    name: "Game console"                       # [OPTIONAL] pretty label
+    url: "https://www.marktplaats.nl/q/spelcomputer/#postcode:1011AB"
+    price_min: 50                              # [OPTIONAL] euros, min price
+    price_max: 300                             # [OPTIONAL] euros, max price
+    distance_km: 25                            # [OPTIONAL] radius; postcode in
+                                               #            the url OR postcode:
+    condition: used                            # [OPTIONAL] see list above
+    include_keywords: ["playstation", "xbox"]  # [OPTIONAL] title/desc must
+                                               #            contain ≥1 of these
+    exclude_keywords: ['(?i)\bdefect\b', "kapot", "alleen controller"]
+                                               # [OPTIONAL] regex; drop matches
+    notify:                                    # [OPTIONAL] override defaults
+      mention: none                            #   for THIS search only
+      # backend: discord_native                # e.g. rich Discord embed here
