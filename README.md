@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jasp-nerd/marktplaats-scraper/actions/workflows/ci.yml"><img src="https://github.com/jasp-nerd/marktplaats-scraper/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/jasp-nerd/marktplaats-monitor/actions/workflows/ci.yml"><img src="https://github.com/jasp-nerd/marktplaats-monitor/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/python-3.11%2B-blue.svg" alt="Python 3.11+">
   <img src="https://img.shields.io/badge/docker-ready-2496ED.svg?logo=docker&logoColor=white" alt="Docker">
@@ -49,8 +49,8 @@ Pushover, Matrix, or ~100 other services** via
 Requires **Python 3.11+** (or just use Docker).
 
 ```bash
-git clone https://github.com/jasp-nerd/marktplaats-scraper
-cd marktplaats-scraper
+git clone https://github.com/jasp-nerd/marktplaats-monitor
+cd marktplaats-monitor
 
 cp .env.example .env            # put your Apprise URL(s) here
 cp config.example.yaml config.yaml   # define your searches
@@ -147,8 +147,8 @@ Per search you can set `notify.mention` (`none` | `everyone` | `here` |
   ```ini
   # /etc/systemd/system/marktplaats-monitor.service
   [Service]
-  WorkingDirectory=/opt/marktplaats-scraper
-  ExecStart=/opt/marktplaats-scraper/.venv/bin/python -m marktplaats_monitor run
+  WorkingDirectory=/opt/marktplaats-monitor
+  ExecStart=/opt/marktplaats-monitor/.venv/bin/python -m marktplaats_monitor run
   Restart=always
   [Install]
   WantedBy=multi-user.target

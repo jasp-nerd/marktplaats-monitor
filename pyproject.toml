@@ -38,7 +38,7 @@ dev = [
 marktplaats-monitor = "marktplaats_monitor.cli:main"
 
 [project.urls]
-Repository = "https://github.com/jasp-nerd/marktplaats-scraper"
+Repository = "https://github.com/jasp-nerd/marktplaats-monitor"
 
 [tool.hatch.build.targets.wheel]
 packages = ["marktplaats_monitor"]
