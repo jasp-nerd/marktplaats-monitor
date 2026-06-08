@@ -1,3 +1,6 @@
+# Local marketing / launch drafts (not part of the published project)
+LAUNCH_POSTS.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

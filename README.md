@@ -11,10 +11,12 @@
 
 # Marktplaats Monitor
 
-Self-hosted monitor for [Marktplaats](https://www.marktplaats.nl). Watches one
-or more saved searches and pushes an alert the moment a matching listing
-appears — or drops in price — to **Discord, Telegram, ntfy, email, Slack,
-Pushover, Matrix, or ~100 other services** via
+Stop refreshing [Marktplaats](https://www.marktplaats.nl). Save a search (a
+racefiets under €300, a PS5, that one secondhand HomePod) and get a
+notification the second a match gets listed or its price drops.
+
+Runs self-hosted in Docker and delivers to **Discord, Telegram, ntfy, email,
+Slack, Pushover, Matrix, or ~100 other services** via
 [Apprise](https://github.com/caronc/apprise).
 
 - 🔎 **Multiple saved searches**, each with its own filters and destination

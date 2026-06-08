@@ -1,0 +1,38 @@
+name: Bug report
+description: Something behaves differently than you expected.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you run, what did you expect, and what did you get instead?
+      placeholder: |
+        I ran `python -m marktplaats_monitor run` with two searches.
+        I expected an alert for the new HomePod listing.
+        No notification fired.
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Config (redacted)
+      description: The relevant part of your config.yaml. Strip every secret first.
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Run with `--log-level DEBUG` and paste the lines around the problem.
+      render: shell
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: How you run it
+      placeholder: Docker compose / bare Python 3.11 on a VPS / cron
+    validations:
+      required: false

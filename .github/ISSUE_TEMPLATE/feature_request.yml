@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest something the monitor should do.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that the tool makes hard or impossible today?
+      placeholder: I want one search to alert Discord and a second one to alert only my phone.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+      description: A rough sketch of the feature or config that would solve it.
+    validations:
+      required: false
