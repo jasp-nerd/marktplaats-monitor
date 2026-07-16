@@ -168,24 +168,34 @@ class Monitor:
         return 1 if any_error else 0
 
     def run_forever(self, interval: int, max_consecutive_failures: int = 5) -> int:
-        logger.info(
-            "Monitoring %d search(es) every %ds. Ctrl-C to stop.",
-            len(self.runtimes),
-            interval,
-        )
+        # Each search polls on its own poll_interval (falling back to the global
+        # interval), floored at 5s to stay under the Marktplaats rate limit.
+        _FLOOR = 5
+        intervals = {
+            rt.search.id: max(_FLOOR, rt.search.poll_interval or interval) for rt in self.runtimes
+        }
+        summary = ", ".join(f"{rt.search.id}@{intervals[rt.search.id]}s" for rt in self.runtimes)
+        logger.info("Monitoring %d search(es): %s. Ctrl-C to stop.", len(self.runtimes), summary)
+
+        next_due = {rt.search.id: 0.0 for rt in self.runtimes}  # 0 => run immediately
         consecutive = 0
         try:
             while True:
-                start = time.monotonic()
+                now = time.monotonic()
+                ran_any = False
                 cycle_failed = False
                 for rt in self.runtimes:
-                    if self.run_search(rt).error:
-                        cycle_failed = True
-                consecutive = consecutive + 1 if cycle_failed else 0
-                if consecutive >= max_consecutive_failures:
-                    logger.error("Stopping: %d consecutive failed cycles", consecutive)
-                    return 1
-                sleep_for = max(5, interval - int(time.monotonic() - start))
+                    if now >= next_due[rt.search.id]:
+                        ran_any = True
+                        if self.run_search(rt).error:
+                            cycle_failed = True
+                        next_due[rt.search.id] = time.monotonic() + intervals[rt.search.id]
+                if ran_any:
+                    consecutive = consecutive + 1 if cycle_failed else 0
+                    if consecutive >= max_consecutive_failures:
+                        logger.error("Stopping: %d consecutive failed cycles", consecutive)
+                        return 1
+                sleep_for = max(1.0, min(next_due.values()) - time.monotonic())
                 time.sleep(sleep_for)
         except KeyboardInterrupt:
             logger.info("Stopped by user.")

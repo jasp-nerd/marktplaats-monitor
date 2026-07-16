@@ -172,3 +172,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Local-only experiments
+/autobuy_local/
+.mp-bin-session.json

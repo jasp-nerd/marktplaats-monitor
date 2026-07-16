@@ -89,6 +89,7 @@ class SearchConfig:
     category_name: str | None = None
     category_params: dict[str, str] | None = None
     max_pages: int = 1
+    poll_interval: int | None = None
     offered_since_minutes: int | None = None
     seed_without_notify: bool = True
     exclude_promoted: bool = True
@@ -195,6 +196,18 @@ def load_config(path: str | Path) -> Config:
         if condition and condition.lower() not in CONDITION_IDS:
             errors.append(f"{ref}: unknown condition {condition!r}; valid: {sorted(CONDITION_IDS)}")
 
+        pi = merged.get("poll_interval")
+        if pi is not None:
+            try:
+                if int(pi) < 1:
+                    errors.append(f"{ref}: poll_interval must be >= 1 second")
+                elif int(pi) < 5:
+                    logger.warning(
+                        "%s: poll_interval=%ss is below the 5s minimum — it will run at 5s", ref, pi
+                    )
+            except (TypeError, ValueError):
+                errors.append(f"{ref}: poll_interval must be an integer number of seconds")
+
         category_name = merged.get("category")
         category_params = None
         if category_name:
@@ -274,6 +287,9 @@ def load_config(path: str | Path) -> Config:
                 category_name=category_name,
                 category_params=category_params,
                 max_pages=int(merged.get("max_pages", 1)),
+                poll_interval=(
+                    int(merged["poll_interval"]) if merged.get("poll_interval") else None
+                ),
                 offered_since_minutes=merged.get("offered_since_minutes"),
                 seed_without_notify=bool(merged.get("seed_without_notify", True)),
                 exclude_promoted=bool(merged.get("exclude_promoted", True)),

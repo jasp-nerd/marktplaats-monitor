@@ -160,6 +160,9 @@ searches:
     distance_km: 25                            # [OPTIONAL] radius; postcode in
                                                #            the url OR postcode:
     condition: used                            # [OPTIONAL] see list above
+    poll_interval: 15                          # [OPTIONAL] check THIS search
+                                               #            every N seconds (min 5)
+                                               #            instead of check_interval
     include_keywords: ["playstation", "xbox"]  # [OPTIONAL] title/desc must
                                                #            contain ≥1 of these
     exclude_keywords: ['(?i)\bdefect\b', "kapot", "alleen controller"]

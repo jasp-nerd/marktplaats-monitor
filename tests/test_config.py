@@ -149,6 +149,35 @@ def test_price_min_gt_max(tmp_path):
         load_config(cfg)
 
 
+def test_poll_interval_parsed_and_validated(tmp_path):
+    cfg = write(
+        tmp_path,
+        """
+        searches:
+          - id: a
+            url: https://www.marktplaats.nl/q/a/
+            poll_interval: 7
+          - id: b
+            url: https://www.marktplaats.nl/q/b/
+        """,
+    )
+    c = load_config(cfg)
+    assert c.searches[0].poll_interval == 7
+    assert c.searches[1].poll_interval is None
+
+    cfg = write(
+        tmp_path,
+        """
+        searches:
+          - id: a
+            url: https://www.marktplaats.nl/q/a/
+            poll_interval: 0
+        """,
+    )
+    with pytest.raises(ConfigError, match="poll_interval"):
+        load_config(cfg)
+
+
 def test_unknown_condition(tmp_path):
     cfg = write(
         tmp_path,
