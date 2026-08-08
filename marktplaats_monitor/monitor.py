@@ -177,6 +177,14 @@ class Monitor:
         summary = ", ".join(f"{rt.search.id}@{intervals[rt.search.id]}s" for rt in self.runtimes)
         logger.info("Monitoring %d search(es): %s. Ctrl-C to stop.", len(self.runtimes), summary)
 
+        # On repeated failures (typically a rate-limit 403), back OFF instead of
+        # exiting: pushing every search out by a growing delay stops us hammering
+        # a blocked API and lets it recover on its own. Exiting here was a trap —
+        # docker's restart policy would relaunch and instantly re-hammer all
+        # searches, keeping the 403 block permanently fresh (a crash loop).
+        _BACKOFF_BASE = 30.0  # first backoff step once cycles start failing
+        _BACKOFF_CAP = 300.0  # never wait longer than 5 min between retries
+
         next_due = {rt.search.id: 0.0 for rt in self.runtimes}  # 0 => run immediately
         consecutive = 0
         try:
@@ -191,10 +199,21 @@ class Monitor:
                             cycle_failed = True
                         next_due[rt.search.id] = time.monotonic() + intervals[rt.search.id]
                 if ran_any:
-                    consecutive = consecutive + 1 if cycle_failed else 0
-                    if consecutive >= max_consecutive_failures:
-                        logger.error("Stopping: %d consecutive failed cycles", consecutive)
-                        return 1
+                    if cycle_failed:
+                        consecutive += 1
+                        backoff = min(_BACKOFF_CAP, _BACKOFF_BASE * 2 ** min(consecutive - 1, 5))
+                        logger.warning(
+                            "%d consecutive failed cycle(s); backing off %.0fs before retrying "
+                            "(likely a rate-limit 403 — reduce poll frequency if this persists)",
+                            consecutive,
+                            backoff,
+                        )
+                        resume = time.monotonic() + backoff
+                        next_due = {k: max(v, resume) for k, v in next_due.items()}
+                    else:
+                        if consecutive:
+                            logger.info("Recovered after %d failed cycle(s)", consecutive)
+                        consecutive = 0
                 sleep_for = max(1.0, min(next_due.values()) - time.monotonic())
                 time.sleep(sleep_for)
         except KeyboardInterrupt:
